@@ -1,5 +1,6 @@
 #include <iostream>
 #include "grafo_lista.h"
+#include "grafo_matriz.h"
 #include "grafo.h"
 
 void exibir_descricao(const Grafo& grafo) {
@@ -24,7 +25,9 @@ int main(int argc, char* argv[]) {
 
     if (operacao == "-d") {
         if (estrutura == "-m") {
-            // Implementação futura pro grafo_matriz
+            GrafoMatriz grafo;
+            grafo.carrega_grafo(arquivo);
+            exibir_descricao(grafo);
         } else if (estrutura == "-l") {
             GrafoLista grafo;
             grafo.carrega_grafo(arquivo);
@@ -36,7 +39,8 @@ int main(int argc, char* argv[]) {
     } else if (operacao == "-c" && argc == 5) {
         std::string descricao = argv[4];
         if (estrutura == "-m") {
-            // Implementação futura pro grafo_matriz
+            GrafoMatriz grafo;
+            grafo.novo_grafo(descricao, arquivo);
         } else if (estrutura == "-l") {
             GrafoLista grafo;
             grafo.novo_grafo(descricao, arquivo);

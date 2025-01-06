@@ -2,5 +2,5 @@
 
 ## Alunos
 - Felipe Lazzarini Cunha
--
+- Luiz Alberto Werneck Silva
 
