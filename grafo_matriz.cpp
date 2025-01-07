@@ -1,8 +1,39 @@
 #include "grafo_matriz.h"
 
 bool GrafoMatriz::eh_bipartido() const{
-    //implementar
-    return false;
+    //vetor para armazenar as cores dos vertices
+    vector<int> cor(ordem,0);
+
+    //Busca em largura para verificar a bipartição
+    auto bel = [&](int inicio)->bool {
+        queue<int> fila;
+        fila.push(inicio);
+        cor[inicio] = 1;
+        while(!fila.empty()){
+            int u = fila.front();
+            fila.pop();
+            for(int v = 0; v < ordem; v++){
+                if(matriz[u][v] != 0){ //se tiver uma aresta entre u e v
+                    if(cor[v] == 0){  // irá verificar se não está colorido
+                        cor[v] = (cor[u] == 1) ? 2 : 1; // irá colorir da cor oposta a do vertice atual
+                        fila.push();
+                    } else if(cor[v] == cor[u]){ //caso a cor seja igual não é bipartido
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    //verificar componentes conexas
+    for(int i = 0; i < ordem; i++){
+        if(cor[i] == 0){ // vertice não visitado
+            if(!bel(i)){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 int GrafoMatriz::n_conexo() const{
