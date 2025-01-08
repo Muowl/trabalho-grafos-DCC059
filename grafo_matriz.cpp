@@ -1,38 +1,44 @@
 #include "grafo_matriz.h"
 
 bool GrafoMatriz::eh_bipartido() const{
-    //vetor para armazenar as cores dos vertices
-    vector<int> cor(ordem,0);
-
-    //Busca em largura para verificar a bipartição
-    auto bel = [&](int inicio)->bool {
-        queue<int> fila;
-        fila.push(inicio);
+    int* cor = new int[ordem];
+    for(int i = 0; i < ordem; i++){
+        cor[i] = 0;
+    }
+    //busca em largura
+    auto bel = [&](int inicio) -> bool {
+        int* fila = new int[ordem];
+        int frente = 0, atras = 0;
+        fila[atras++] = inicio;
         cor[inicio] = 1;
-        while(!fila.empty()){
-            int u = fila.front();
-            fila.pop();
+        while(frente != atras){
+            int u = fila[frente++];
             for(int v = 0; v < ordem; v++){
-                if(matriz[u][v] != 0){ //se tiver uma aresta entre u e v
-                    if(cor[v] == 0){  // irá verificar se não está colorido
-                        cor[v] = (cor[u] == 1) ? 2 : 1; // irá colorir da cor oposta a do vertice atual
-                        fila.push();
-                    } else if(cor[v] == cor[u]){ //caso a cor seja igual não é bipartido
+                if(matriz[u][v] != 0){
+                    if(cor[v] == 0){
+                        cor[v] = (cor[u] == 1) ? 2 : 1;
+                        fila[atras++] = v;
+                    }else if(cor[v] == cor[u]){
+                        delete[] fila;
+                        delete[] cor;
                         return false;
                     }
                 }
             }
         }
+        delete[] fila;
         return true;
     };
-    //verificar componentes conexas
+    //componentes conexas
     for(int i = 0; i < ordem; i++){
-        if(cor[i] == 0){ // vertice não visitado
+        if(cor[i] == 0){
             if(!bel(i)){
+                delete[] cor;
                 return false;
             }
         }
     }
+    delete[] cor;
     return true;
 }
 
