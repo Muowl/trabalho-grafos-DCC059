@@ -107,8 +107,7 @@ void GrafoMatriz::carrega_grafo(const std::string& arquivo){
         throw std::runtime_error("Erro ao abrir o arquivo!");
     }
 
-    int ordem, direcionado, vertices_ponderados, arestas_ponderadas;
-    in >> ordem >> direcionado >> vertices_ponderados >> arestas_ponderadas;
+    in >> ordem;
 
     for(int i = 0; i < ordem; i++){
         for(int j = 0; j < ordem; j++){
@@ -127,63 +126,43 @@ void GrafoMatriz::carrega_grafo(const std::string& arquivo){
 }
 
 void GrafoMatriz::novo_grafo(const std::string& descricao, const std::string& saida){
-    std::ifstream config(descricao);
-    if(!config){
+    std::ifstream in(descricao);
+    if(!in){
         throw std::runtime_error("Erro ao abrir o arquivo de descrição!");
     }
     
-    int grau, ord, dir, vp, ap;
-    config >> grau >> ord >> dir;
-    config >> dir >> vp >> ap;
-
-    ordem = ord;
-    direcionado = dir;
-    vertices_ponderados = vp;
-    arestas_ponderadas = ap;
-
-    matriz.assign(ordem, vector<int>(ordem,0));
-    vector<int> pesos_vertices;
-
-    if(vertices_ponderados){
-        pesos_vertices.resize(ordem);
-        for(int i = 0; i < ordem; i++){
-            pesos_vertices[i] = rand() % 10 + 1;
+    in >> ordem;
+    for(int i = 0; i < ordem; i++){
+        for(int j = 0; j < ordem; j++){
+            matriz[i][j] = 0;
         }
     }
 
-    srand(time(nullptr));
-    for(int i = 0; i < ordem; i++){
-        for(int j = 0; j < ordem; j++){
-            if(i != j && rand() % 2){
-                int peso = arestas_ponderadas ? rand() % 10 + 1 : 1;
-                matriz[i][j] = peso;
-                if(!direcionado){
-                    matriz[j][i] = peso;
+    srand(time(nullptr)){
+        for(int i = 0; i < ordem; i++){
+            for(int j = 0; j < ordem; j++){
+                if(rand() % 2){ //verifica se uma aresta foi criada entre 2 vertices gerados
+                    matriz[i][j] = matriz[j][i] = rand() % 10 + 1;
                 }
             }
         }
     }
-    config.close();
 
-    std::ofstream output(saida);
-    if(!output){
-        throw std::runtime_error("Erro ao salvar o grafo!");
+    in.close();
+
+    std::ofstream out(saida);
+    if(!out){
+        throw std::runtime_error("Erro ao criar o arquivo de saida!");
     }
 
-    output << ordem << "" << direcionado <<  "" << vertices_ponderados << "" << arestas_ponderadas << endl;
-    if(vertices_ponderados){
-        for(const auto& peso : pesos_vertices){
-            output << peso << "";
-        }
-        output << endl;
-    }
-
+    out << ordem << " " << direcionado << " " << vertices_ponderados << " " << arestas_ponderadas << endl;
     for(int i = 0; i < ordem; i++){
         for(int j = 0; j < ordem; j++){
             if(matriz[i][j] != 0){
-                output << i+1 << "" << j+1 << "" << matriz[i][j] << endl;
+                out << i+1 << "" << j+1 << "" << matriz[i][j] << endl;
             }
         }
     }
-    output.close();
+
+    out.close();
 }
