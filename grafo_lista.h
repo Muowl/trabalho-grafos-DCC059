@@ -26,6 +26,14 @@ private:
     bool vertices_ponderados;
     bool arestas_ponderadas;
 
+    // Funções auxiliares como "friend" para acessarem 'vertices'
+    friend bool dfs_color(const GrafoLista& g, int v, int corAtual, int* corArray);
+    friend void dfs_componente(const GrafoLista& g, int v, bool* visitado);
+    friend void dfs_articulacao(const GrafoLista& g, int v, bool* visitado, int* disc, int* low, int* parent, bool* ap, int& time);
+    friend void dfs_ponte(const GrafoLista& g, int v, bool* visitado, int* disc, int* low, int* parent, bool& has_bridge, int& time);
+    
+
+
 public:
     GrafoLista(bool dir = false, bool vp = false, bool ap = false)
         : direcionado(dir), vertices_ponderados(vp), arestas_ponderadas(ap) {}
