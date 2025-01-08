@@ -2,20 +2,41 @@
 #define GRAFO_MATRIZ_H
 
 #include "grafo.h"
-#include <vector>
+#include <iostream>
 #include <fstream>
-#include <stdexcept>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 #include <string>
+#include <iomanip>
 
 
 class GrafoMatriz : public Grafo{
     private:
-        vector<vector<int>> matriz;
-        vector<int> pesos_vertices;
+        int** matriz;
         int ordem;
+        bool direcionado;
+        bool vertices_ponderados;
+        bool arestas_ponderadas;        
+        
     public:
-        GrafoMatriz(int ord, bool dir = false, bool vp = false, bool ap = false)
-            : ordem(ord), direcionado(dir), vertices_ponderados(vp), arestas_ponderadas(ap) {}
+        GrafoMatriz(int ordem, bool direcionado, bool vertices_ponderados, bool arestas_ponderadas)
+            : ordem(ordem), direcionado(direcionado), vertices_ponderados(vertices_ponderados), arestas_ponderadas(arestas_ponderadas) {
+            matriz = new int*[ordem];
+            for(int i = 0;i < ordem; i++){
+                matriz[i] = new int[ordem];
+                for(int j = 0; j < ordem; j++){
+                    matriz[i][j] = 0;
+                }
+            }
+        }
+
+        ~GrafoMatriz() override{
+            for(int i = 0; i < ordem; i++){
+                delete[] matriz[i];
+            }
+            delete[] matriz;
+        }
 
         bool eh_bipartido() const override;
         int n_conexo() const override;
