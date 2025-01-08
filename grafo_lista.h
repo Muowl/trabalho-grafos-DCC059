@@ -2,7 +2,7 @@
 #define GRAFO_LISTA_H
 
 #include "grafo.h"
-#include <list>
+#include "lista_encadeada.h"
 #include <vector>
 #include <fstream>
 #include <stdexcept>
@@ -17,7 +17,7 @@ private:
 
     struct Vertice {
         int id;
-        std::list<Aresta> adjacentes;
+        ListaEncadeada<Aresta> adjacentes;
         Vertice(int i) : id(i) {}
     };
 

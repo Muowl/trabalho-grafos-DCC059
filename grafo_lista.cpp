@@ -12,7 +12,7 @@ int GrafoLista::n_conexo() const {
 
 int GrafoLista::get_grau(int vertice) const {
     if (vertice < 1 || vertice > (int)vertices.size()) return -1;
-    return vertices[vertice - 1].adjacentes.size();
+    return vertices[vertice - 1].adjacentes.get_size();
 }
 
 int GrafoLista::get_ordem() const {
@@ -71,9 +71,9 @@ void GrafoLista::carrega_grafo(const std::string& arquivo) {
 
     int origem, destino, peso;
     while (in >> origem >> destino >> peso) {
-        vertices[origem - 1].adjacentes.emplace_back(destino, peso);
+        vertices[origem - 1].adjacentes.push_back(Aresta(destino, peso));
         if (!direcionado) {
-            vertices[destino - 1].adjacentes.emplace_back(origem, peso);
+            vertices[destino - 1].adjacentes.push_back(Aresta(origem, peso));
         }
     }
 }
