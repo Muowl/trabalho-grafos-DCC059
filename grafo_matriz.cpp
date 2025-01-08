@@ -43,8 +43,26 @@ bool GrafoMatriz::eh_bipartido() const{
 }
 
 int GrafoMatriz::n_conexo() const{
-    //implementar
-    return 0;
+    bool* visitado = new bool[ordem]();
+    int componentes = 0;
+    //busca em profundidade
+    auto bep = [&](int v, auto& bep_refs) -> void {
+        visitado[v] = true;
+        for(int u = 0; u < ordem; u++){
+            if(matriz[v][u] != 0 && !visitado[u]){
+                bep_refs(u, bep_refs);
+            }
+        }
+    };
+    
+    for(int i = 0; i < ordem; i++){
+        if(!visitado[i]){
+            ++componentes;
+            bep(i, bep);
+        }
+    }
+    delete[] visitado;
+    return componentes;  
 }
 
 int GrafoMatriz::get_grau(int vertice) const{
