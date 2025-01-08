@@ -107,29 +107,17 @@ void GrafoMatriz::carrega_grafo(const std::string& arquivo){
         throw std::runtime_error("Erro ao abrir o arquivo!");
     }
 
-    int ord, dir, vp, ap;
-    in >> ord >> dir >> vp >> ap;
+    int ordem, direcionado, vertices_ponderados, arestas_ponderadas;
+    in >> ordem >> direcionado >> vertices_ponderados >> arestas_ponderadas;
 
-    ordem = ord;
-    direcionado = dir;
-    vertices_ponderados = vp;
-    arestas_ponderadas = ap;
-
-    matriz.assign(ordem, vector<int>(ordem, 0));
-    vector<int> pesos_vertices;
-
-    if(vertices_ponderados){
-        pesos_vertices.resize(ordem);
-        for(int i = 0; i < ordem; i++){
-            in >> pesos_vertices[i]
+    for(int i = 0; i < ordem; i++){
+        for(int j = 0; j < ordem; j++){
+            matriz[i][j] = 0;
         }
     }
 
     int origem, destino, peso;
-    while(in >> origem >> destino){
-        if(arestas_ponderadas){
-            in >> peso;
-        }
+    while(in >> origem >> destino >> peso){
         matriz[origem-1][destino-1] = peso;
         if(!direcionado){
             matriz[destino-1][origem-1] = peso;
