@@ -94,9 +94,9 @@ int GrafoLista::n_conexo() const
 
 int GrafoLista::get_grau(int vertice) const
 {
-    if (vertice < 1 || vertice > (int)vertices.size())
-        return -1;
-    return vertices[vertice - 1].adjacentes.get_size();
+    if (vertice < 0 || vertice >= (int)vertices.size())
+        return -1; // Verificação de índice inválido
+    return vertices[vertice].adjacentes.get_size();
 }
 
 int GrafoLista::get_ordem() const
@@ -134,18 +134,16 @@ bool GrafoLista::eh_completo() const
 
 bool GrafoLista::eh_arvore() const
 {
-    if (vertices.empty())
-        return false;
     if (n_conexo() != 1)
-        return false;
+        return false; // Deve ser conexo
     int num_arestas = 0;
     for (const auto &vertice : vertices)
     {
         num_arestas += vertice.adjacentes.get_size();
     }
     if (!direcionado)
-        num_arestas /= 2;
-    return num_arestas == vertices.size() - 1;
+        num_arestas /= 2;                           // Contar arestas apenas uma vez
+    return num_arestas == (int)vertices.size() - 1; // Árvore tem n-1 arestas
 }
 
 void dfs_articulacao(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool *ap, int &time)
@@ -284,12 +282,11 @@ void GrafoLista::carrega_grafo(const std::string &arquivo)
     std::ifstream in(arquivo);
     if (!in)
     {
-        throw std::runtime_error("Erro ao abrir o arquivo");
+        throw std::runtime_error("Erro ao abrir o arquivo!");
     }
 
     int num_vertices, dir, vp, ap;
     in >> num_vertices >> dir >> vp >> ap;
-
     direcionado = dir;
     vertices_ponderados = vp;
     arestas_ponderadas = ap;
@@ -298,6 +295,15 @@ void GrafoLista::carrega_grafo(const std::string &arquivo)
     for (int i = 1; i <= num_vertices; ++i)
     {
         vertices.emplace_back(i);
+    }
+
+    if (vertices_ponderados)
+    {
+        pesos_vertices = new int[num_vertices];
+        for (int i = 0; i < num_vertices; ++i)
+        {
+            in >> pesos_vertices[i];
+        }
     }
 
     int origem, destino, peso;
@@ -309,13 +315,12 @@ void GrafoLista::carrega_grafo(const std::string &arquivo)
             vertices[destino - 1].adjacentes.push_back(Aresta(origem, peso));
         }
     }
+    in.close();
 }
 
-void GrafoLista::novo_grafo(const std::string &descricao, const std::string &saida)
-{
+void GrafoLista::novo_grafo(const std::string &descricao, const std::string &saida) {
     std::ifstream in(descricao);
-    if (!in)
-    {
+    if (!in) {
         throw std::runtime_error("Erro ao abrir o arquivo de descrição");
     }
 
@@ -327,41 +332,36 @@ void GrafoLista::novo_grafo(const std::string &descricao, const std::string &sai
     this->arestas_ponderadas = arestas_ponderadas;
 
     vertices.clear();
-    for (int i = 1; i <= num_vertices; ++i)
-    {
+    for (int i = 1; i <= num_vertices; ++i) {
         vertices.emplace_back(i);
     }
 
     int num_arestas = completo ? (num_vertices * (num_vertices - 1)) / (direcionado ? 1 : 2) : num_vertices - 1;
 
-    std::ofstream out(saida);
-    if (!out)
-    {
+    // Abrir arquivo de saída com o nome correto
+    std::ofstream out(saida, std::ios::out | std::ios::trunc);
+    if (!out) {
         throw std::runtime_error("Erro ao criar o arquivo de saída");
     }
 
     out << num_vertices << " " << dirigido << " " << vertices_ponderados << " " << arestas_ponderadas << "\n";
 
-    for (int i = 0; i < num_arestas; ++i)
-    {
+    for (int i = 0; i < num_arestas; ++i) {
         int origem = rand() % num_vertices + 1;
         int destino = rand() % num_vertices + 1;
-        while (destino == origem)
-        {
+        while (destino == origem) {
             destino = rand() % num_vertices + 1;
         }
 
         int peso = arestas_ponderadas ? (rand() % 20 - 10) : 1; // Pesos entre -10 e 10 para arestas ponderadas
 
         vertices[origem - 1].adjacentes.push_back(Aresta(destino, peso));
-        if (!direcionado)
-        {
+        if (!direcionado) {
             vertices[destino - 1].adjacentes.push_back(Aresta(origem, peso));
         }
 
         out << origem << " " << destino;
-        if (arestas_ponderadas)
-        {
+        if (arestas_ponderadas) {
             out << " " << peso;
         }
         out << "\n";

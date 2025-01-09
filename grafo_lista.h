@@ -7,15 +7,18 @@
 #include <fstream>
 #include <stdexcept>
 
-class GrafoLista : public Grafo {
+class GrafoLista : public Grafo
+{
 private:
-    struct Aresta {
+    struct Aresta
+    {
         int destino;
         int peso;
         Aresta(int d, int p) : destino(d), peso(p) {}
     };
 
-    struct Vertice {
+    struct Vertice
+    {
         int id;
         ListaEncadeada<Aresta> adjacentes;
         Vertice(int i) : id(i) {}
@@ -25,19 +28,22 @@ private:
     bool direcionado;
     bool vertices_ponderados;
     bool arestas_ponderadas;
+    int *pesos_vertices;
 
     // Funções auxiliares como "friend" para acessarem 'vertices'
-    friend bool dfs_color(const GrafoLista& g, int v, int corAtual, int* corArray);
-    friend void dfs_componente(const GrafoLista& g, int v, bool* visitado);
-    friend void dfs_articulacao(const GrafoLista& g, int v, bool* visitado, int* disc, int* low, int* parent, bool* ap, int& time);
-    friend void dfs_ponte(const GrafoLista& g, int v, bool* visitado, int* disc, int* low, int* parent, bool& has_bridge, int& time);
-    
-
+    friend bool dfs_color(const GrafoLista &g, int v, int corAtual, int *corArray);
+    friend void dfs_componente(const GrafoLista &g, int v, bool *visitado);
+    friend void dfs_articulacao(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool *ap, int &time);
+    friend void dfs_ponte(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool &has_bridge, int &time);
 
 public:
     GrafoLista(bool dir = false, bool vp = false, bool ap = false)
-        : direcionado(dir), vertices_ponderados(vp), arestas_ponderadas(ap) {}
+        : direcionado(dir), vertices_ponderados(vp), arestas_ponderadas(ap), pesos_vertices(nullptr) {}
 
+    ~GrafoLista()
+    {
+        delete[] pesos_vertices;
+    }
     bool eh_bipartido() const override;
     int n_conexo() const override;
     int get_grau(int vertice) const override;
@@ -49,8 +55,8 @@ public:
     bool eh_arvore() const override;
     bool possui_articulacao() const override;
     bool possui_ponte() const override;
-    void carrega_grafo(const std::string& arquivo) override;
-    void novo_grafo(const std::string& descricao, const std::string& saida) override;
+    void carrega_grafo(const std::string &arquivo) override;
+    void novo_grafo(const std::string &descricao, const std::string &saida) override;
 };
 
 #endif // GRAFO_LISTA_H

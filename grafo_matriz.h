@@ -17,6 +17,7 @@ private:
     bool direcionado;
     bool vertices_ponderados;
     bool arestas_ponderadas;
+    int *pesos_vertices; // Array para pesos dos vértices
 
     // Helper para alocar a matriz
     void alocarMatriz(int n)
@@ -44,9 +45,8 @@ private:
 
 public:
     // Construtor padrão sem qualificação
-    GrafoMatriz()
-        : matriz(nullptr), ordem(0), direcionado(false),
-          vertices_ponderados(false), arestas_ponderadas(false) {}
+    GrafoMatriz() : matriz(nullptr), ordem(0), direcionado(false),
+                    vertices_ponderados(false), arestas_ponderadas(false), pesos_vertices(nullptr) {}
 
     // Construtor com parâmetros
     GrafoMatriz(int ordem, bool direcionado, bool vertices_ponderados, bool arestas_ponderadas)
@@ -66,8 +66,8 @@ public:
             }
             delete[] matriz;
         }
+        delete[] pesos_vertices;
     }
-
     bool eh_bipartido() const override;
     int n_conexo() const override;
     int get_grau(int vertice) const override;

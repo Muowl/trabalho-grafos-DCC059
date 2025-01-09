@@ -82,13 +82,17 @@ int GrafoMatriz::n_conexo() const
     delete[] visitado;
     return componentes;
 }
-
 int GrafoMatriz::get_grau(int vertice) const
 {
+    if (vertice < 0 || vertice >= ordem)
+        return -1; // Verificação de índice inválido
     int grau = 0;
-    for (int i = 0; i < ordem; i++)
+    for (int i = 0; i < ordem; ++i)
     {
-        grau += matriz[vertice][i];
+        if (matriz[vertice][i] != 0)
+            grau++;
+        if (!direcionado && matriz[i][vertice] != 0)
+            grau++;
     }
     return grau;
 }
@@ -130,14 +134,12 @@ bool GrafoMatriz::aresta_ponderada() const
 
 bool GrafoMatriz::eh_completo() const
 {
-    for (int i = 0; i < ordem; i++)
+    for (int i = 0; i < ordem; ++i)
     {
-        for (int j = 0; j < ordem; j++)
+        for (int j = 0; j < ordem; ++j)
         {
             if (i != j && matriz[i][j] == 0)
-            {
                 return false;
-            }
         }
     }
     return true;
@@ -145,60 +147,20 @@ bool GrafoMatriz::eh_completo() const
 
 bool GrafoMatriz::eh_arvore() const
 {
-    // função auxiliar para a busca em profundidade
-    auto dfs = [&](int v, bool *visitado, int pai, auto &dfs_ref) -> bool
+    if (n_conexo() != 1)
+        return false; // Deve ser conexo
+    int num_arestas = 0;
+    for (int i = 0; i < ordem; ++i)
     {
-        visitado[v] = true;
-        for (int u = 0; u < ordem; u++)
-        {
-            if (matriz[v][u] != 0)
-            {
-                if (!visitado[u])
-                {
-                    if (!dfs_ref(u, visitado, v, dfs_ref))
-                    {
-                        return false; // ciclo
-                    }
-                }
-                else if (u != pai)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    };
-    // verificar se é conexo
-    bool *visitado = new bool[ordem]();
-    if (!dfs(0, visitado, -1, dfs))
-    {
-        delete[] visitado;
-        return false; // ciclo
-    }
-    // verificar vertices visitados
-    for (int i = 0; i < ordem; i++)
-    {
-        if (!visitado[i])
-        {
-            delete[] visitado;
-            return false; // desconexo
-        }
-    }
-
-    delete[] visitado;
-
-    int arestas = 0;
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = i; j < ordem; j++)
+        for (int j = 0; j < ordem; ++j)
         {
             if (matriz[i][j] != 0)
-            {
-                arestas++;
-            }
+                num_arestas++;
         }
     }
-    return arestas == ordem - 1;
+    if (!direcionado)
+        num_arestas /= 2;            // Contar arestas apenas uma vez
+    return num_arestas == ordem - 1; // Árvore tem n-1 arestas
 }
 
 bool GrafoMatriz::possui_articulacao() const
@@ -317,21 +279,31 @@ void GrafoMatriz::carrega_grafo(const std::string &arquivo)
     {
         throw std::runtime_error("Erro ao abrir o arquivo!");
     }
-    // Ler ordem
-    int n;
-    in >> n;
-    // Alocar matriz de acordo com n
-    alocarMatriz(n);
+
+    int dir, vp, ap;
+    in >> ordem >> dir >> vp >> ap;
+    direcionado = dir;
+    vertices_ponderados = vp;
+    arestas_ponderadas = ap;
+
+    alocarMatriz(ordem);
+
+    if (vertices_ponderados)
+    {
+        pesos_vertices = new int[ordem];
+        for (int i = 0; i < ordem; ++i)
+        {
+            in >> pesos_vertices[i];
+        }
+    }
+
     int origem, destino, peso;
     while (in >> origem >> destino >> peso)
     {
         matriz[origem - 1][destino - 1] = peso;
         if (!direcionado)
-        {
             matriz[destino - 1][origem - 1] = peso;
-        }
     }
-
     in.close();
 }
 
@@ -341,38 +313,40 @@ void GrafoMatriz::novo_grafo(const std::string &descricao, const std::string &sa
         throw std::runtime_error("Erro ao abrir o arquivo de descrição!");
     }
 
-    // Ler ordem
-    int n;
-    in >> n;
+    // Ler configurações do grafo
+    int num_vertices, dirigido, vertices_ponderados, arestas_ponderadas;
+    in >> num_vertices >> dirigido >> vertices_ponderados >> arestas_ponderadas;
 
-    // Alocar matriz
-    alocarMatriz(n);
+    direcionado = dirigido;
+    vertices_ponderados = vertices_ponderados;
+    arestas_ponderadas = arestas_ponderadas;
 
-    //Preenche dados
+    alocarMatriz(num_vertices);
+
     srand(time(nullptr));
     for (int i = 0; i < ordem; i++) {
         for (int j = 0; j < ordem; j++) {
             if (rand() % 2) {
                 matriz[i][j] = rand() % 10 + 1;
-                matriz[j][i] = matriz[i][j];
+                if (!direcionado) {
+                    matriz[j][i] = matriz[i][j];
+                }
             }
         }
     }
     in.close();
 
-    std::ofstream out(saida);
+    // Abrir arquivo de saída com o nome correto
+    std::ofstream out(saida, std::ios::out | std::ios::trunc);
     if (!out) {
         throw std::runtime_error("Erro ao criar o arquivo de saída!");
     }
 
-    // Exemplo de salvar
-    out << ordem << " " << direcionado << " " 
-        << vertices_ponderados << " " << arestas_ponderadas << std::endl;
+    out << ordem << " " << direcionado << " " << vertices_ponderados << " " << arestas_ponderadas << "\n";
     for (int i = 0; i < ordem; i++) {
         for (int j = 0; j < ordem; j++) {
             if (matriz[i][j] != 0) {
-                out << i + 1 << " " << j + 1 << " " 
-                    << matriz[i][j] << std::endl;
+                out << i + 1 << " " << j + 1 << " " << matriz[i][j] << "\n";
             }
         }
     }
