@@ -4,3 +4,5 @@
 - Felipe Lazzarini Cunha
 - Luiz Alberto Werneck Silva
 
+## Execução (Windows)
+- g++ -o main.exe main.cpp grafo_lista.cpp grafo_matriz.cpp

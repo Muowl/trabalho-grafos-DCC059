@@ -4,13 +4,17 @@
 #include "grafo.h"
 
 void exibir_descricao(const Grafo& grafo) {
+    std::cout << "Grau: " << grafo.get_grau(0) << "\n";
     std::cout << "Ordem: " << grafo.get_ordem() << "\n";
     std::cout << "Direcionado: " << (grafo.eh_direcionado() ? "Sim" : "Nao") << "\n";
+    std::cout << "Numero de componentes conexas: " << grafo.n_conexo() << "\n";
     std::cout << "Vertices ponderados: " << (grafo.vertice_ponderado() ? "Sim" : "Nao") << "\n";
     std::cout << "Arestas ponderadas: " << (grafo.aresta_ponderada() ? "Sim" : "Nao") << "\n";
     std::cout << "Completo: " << (grafo.eh_completo() ? "Sim" : "Nao") << "\n";
     std::cout << "Bipartido: " << (grafo.eh_bipartido() ? "Sim" : "Nao") << "\n";
-    std::cout << "Árvore: " << (grafo.eh_arvore() ? "Sim" : "Nao") << "\n";
+    std::cout << "Arvore: " << (grafo.eh_arvore() ? "Sim" : "Nao") << "\n";
+    std::cout << "Possui ponte: " << (grafo.possui_ponte() ? "Sim" : "Nao") << "\n";
+    std::cout << "Possui articulacao: " << (grafo.possui_articulacao() ? "Sim" : "Nao") << "\n";
 }
 
 int main(int argc, char* argv[]) {
