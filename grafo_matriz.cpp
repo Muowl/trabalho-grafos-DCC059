@@ -93,16 +93,6 @@ int GrafoMatriz::get_grau(int vertice) const
     return grau;
 }
 
-int GrafoMatriz::get_ordem() const
-{
-    int n = 0;
-    while (matriz[n] != nullptr)
-    {
-        n++;
-    }
-    return n;
-}
-
 bool GrafoMatriz::eh_direcionado() const
 {
     for (int i = 0; i < ordem; i++)
@@ -327,17 +317,11 @@ void GrafoMatriz::carrega_grafo(const std::string &arquivo)
     {
         throw std::runtime_error("Erro ao abrir o arquivo!");
     }
-
-    in >> ordem;
-
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            matriz[i][j] = 0;
-        }
-    }
-
+    // Ler ordem
+    int n;
+    in >> n;
+    // Alocar matriz de acordo com n
+    alocarMatriz(n);
     int origem, destino, peso;
     while (in >> origem >> destino >> peso)
     {
@@ -347,33 +331,28 @@ void GrafoMatriz::carrega_grafo(const std::string &arquivo)
             matriz[destino - 1][origem - 1] = peso;
         }
     }
+
     in.close();
 }
 
-void GrafoMatriz::novo_grafo(const std::string &descricao, const std::string &saida)
-{
+void GrafoMatriz::novo_grafo(const std::string &descricao, const std::string &saida) {
     std::ifstream in(descricao);
-    if (!in)
-    {
+    if (!in) {
         throw std::runtime_error("Erro ao abrir o arquivo de descrição!");
     }
 
-    in >> ordem;
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            matriz[i][j] = 0;
-        }
-    }
+    // Ler ordem
+    int n;
+    in >> n;
 
+    // Alocar matriz
+    alocarMatriz(n);
+
+    //Preenche dados
     srand(time(nullptr));
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            if (rand() % 2)
-            { // verifica se uma aresta foi criada entre 2 vertices gerados
+    for (int i = 0; i < ordem; i++) {
+        for (int j = 0; j < ordem; j++) {
+            if (rand() % 2) {
                 matriz[i][j] = rand() % 10 + 1;
                 matriz[j][i] = matriz[i][j];
             }
@@ -382,22 +361,20 @@ void GrafoMatriz::novo_grafo(const std::string &descricao, const std::string &sa
     in.close();
 
     std::ofstream out(saida);
-    if (!out)
-    {
-        throw std::runtime_error("Erro ao criar o arquivo de saida!");
+    if (!out) {
+        throw std::runtime_error("Erro ao criar o arquivo de saída!");
     }
 
-    out << ordem << " " << direcionado << " " << vertices_ponderados << " " << arestas_ponderadas << std::endl;
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            if (matriz[i][j] != 0)
-            {
-                out << i + 1 << "" << j + 1 << "" << matriz[i][j] << std::endl;
+    // Exemplo de salvar
+    out << ordem << " " << direcionado << " " 
+        << vertices_ponderados << " " << arestas_ponderadas << std::endl;
+    for (int i = 0; i < ordem; i++) {
+        for (int j = 0; j < ordem; j++) {
+            if (matriz[i][j] != 0) {
+                out << i + 1 << " " << j + 1 << " " 
+                    << matriz[i][j] << std::endl;
             }
         }
     }
-
     out.close();
 }

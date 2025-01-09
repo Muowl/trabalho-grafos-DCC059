@@ -23,7 +23,6 @@ public:
     int get_size() const;
     bool empty() const;
 
-    // Iterators
     class Iterator {
     private:
         Node* current;
@@ -48,13 +47,11 @@ public:
 
     Iterator begin() { return Iterator(head); }
     Iterator end() { return Iterator(nullptr); }
-
-    // Const versions for use in a const context
     ConstIterator begin() const { return ConstIterator(head); }
     ConstIterator end() const { return ConstIterator(nullptr); }
 };
 
-// Template implementations
+
 template <typename T>
 ListaEncadeada<T>::~ListaEncadeada() {
     clear();
