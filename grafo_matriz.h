@@ -20,6 +20,12 @@ class GrafoMatriz : public Grafo{
         bool arestas_ponderadas;        
         
     public:
+
+        GrafoMatriz()
+        : ordem(0), direcionado(false), vertices_ponderados(false), arestas_ponderadas(false) {
+        matriz = nullptr;
+    }
+
         GrafoMatriz(int ordem, bool direcionado, bool vertices_ponderados, bool arestas_ponderadas)
             : ordem(ordem), direcionado(direcionado), vertices_ponderados(vertices_ponderados), arestas_ponderadas(arestas_ponderadas) {
             matriz = new int*[ordem];
@@ -54,4 +60,4 @@ class GrafoMatriz : public Grafo{
 };
 
 
-#endif GRAFO_MATRIZ_H
+#endif //GRAFO_MATRIZ_H

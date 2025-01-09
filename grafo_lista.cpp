@@ -1,6 +1,6 @@
 #include "grafo_lista.h"
 
-static bool dfs_color(const GrafoLista &g, int v, int corAtual, int *corArray)
+bool dfs_color(const GrafoLista &g, int v, int corAtual, int *corArray)
 {
     corArray[v] = corAtual;
     // Percorre a lista de adjacências
@@ -52,7 +52,7 @@ bool GrafoLista::eh_bipartido() const
     return true;
 }
 
-static void dfs_componente(const GrafoLista &g, int v, bool *visitado)
+void dfs_componente(const GrafoLista &g, int v, bool *visitado)
 {
     visitado[v] = true;
     // Percorre a lista de adjacências
@@ -148,7 +148,7 @@ bool GrafoLista::eh_arvore() const
     return num_arestas == vertices.size() - 1;
 }
 
-static void dfs_articulacao(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool *ap, int &time)
+void dfs_articulacao(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool *ap, int &time)
 {
     int children = 0;
     visitado[v] = true;
@@ -219,7 +219,7 @@ bool GrafoLista::possui_articulacao() const
     return has_ap;
 }
 
-static void dfs_ponte(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool &has_bridge, int &time)
+void dfs_ponte(const GrafoLista &g, int v, bool *visitado, int *disc, int *low, int *parent, bool &has_bridge, int &time)
 {
     visitado[v] = true;
     disc[v] = low[v] = ++time;
