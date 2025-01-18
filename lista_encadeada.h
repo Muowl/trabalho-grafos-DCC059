@@ -29,7 +29,7 @@ public:
     public:
         Iterator(Node* node) : current(node) {}
         T& operator*() { return current->data; }
-        T* operator->() { return &current->data; } // Extra
+        T* operator->() { return &current->data; }
         Iterator& operator++() { current = current->next; return *this; }
         bool operator!=(const Iterator& other) const { return current != other.current; }
     };
@@ -40,7 +40,7 @@ public:
     public:
         ConstIterator(const Node* node) : current(node) {}
         const T& operator*() const { return current->data; }
-        const T* operator->() const { return &current->data; } // Extra para const
+        const T* operator->() const { return &current->data; }
         ConstIterator& operator++() { current = current->next; return *this; }
         bool operator!=(const ConstIterator& other) const { return current != other.current; }
     };
