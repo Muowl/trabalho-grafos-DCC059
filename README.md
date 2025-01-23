@@ -9,3 +9,5 @@
 
 ## Compilação (Windows)
 - g++ -o main.exe main.cpp grafo_lista.cpp grafo_matriz.cpp
+
+## Compliação (Linux)
