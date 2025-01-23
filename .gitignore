@@ -8,7 +8,6 @@
 *.obj
 
 # Precompiled Headers
-*.gch
 *.pch
 
 # Compiled Dynamic libraries
@@ -31,4 +30,22 @@
 *.out
 *.app
 
+# IDE
 .vscode/
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Build directories
+build/
+out/
