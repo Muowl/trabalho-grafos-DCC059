@@ -3,20 +3,21 @@
 
 #ifndef GRAFO_H
 #define GRAFO_H
-#include "auxiliar_grafo.h"
+#include "no.h"
+#include "aresta.h"
 
 class grafo {
 public:
     grafo();
     ~grafo();
 
-    no_grafo* get_no(int id);
-    aresta_grafo* get_aresta(int origem, int destino);
+    no* get_no(int id);
+    aresta* get_aresta(int origem, int destino);
 
     void add_no(float peso);
     void add_aresta(int origem, int destino, float peso);
 
-    aresta_grafo** get_vizinhos(int id);
+    aresta** get_vizinhos(int id);
     void remove_no(int id);
 
     bool eh_completo();
