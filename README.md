@@ -22,8 +22,11 @@ O trabalho está sendo desenvolvido e testado na ultima versão do Ubuntu (atrav
     ```bash
     docker run --rm -it trabalho_grafos
     ```
-
-
+- **Para acessar o bash do container:**
+    ```bash
+    docker run --rm -it trabalho_grafos /bin/bash
+    ```
+    
 ## Execução do programa (CMake - Linux)
 1. **Criar o diretório de build**:
     ```bash
