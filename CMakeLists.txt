@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Nome do projeto
-project(TrabalhoGrafos)
+project(main)
 
 # Definir o padrão C++
 set(CMAKE_CXX_STANDARD 11)

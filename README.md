@@ -36,9 +36,9 @@
 - **Executar o programa**:
     Linux:
     ```bash
-    ./TrabalhoGrafos
+    ./main
     ```
     Windows:
     ```bash
-    .\TrabalhoGrafos.exe
+    .\main.exe
     ```
