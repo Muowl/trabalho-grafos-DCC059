@@ -8,7 +8,6 @@
 - Dentro do diretório docs/
 
 ## Compilação (CMake)
-
 - **Criar o diretório de build**:
     ```bash
     mkdir build
@@ -25,6 +24,7 @@
     ```
 
 - **Compilar o projeto**:
+
     Linux:
     ```bash
     make
@@ -34,6 +34,7 @@
     cmake --build .
     ```
 - **Executar o programa**:
+
     Linux:
     ```bash
     ./main
