@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     g++ \
     git \
+    valgrind \
     && apt-get clean
 
 # Definir o diretório de trabalho
@@ -24,4 +25,4 @@ RUN rm -rf CMakeCache.txt CMakeFiles
 RUN cmake .. && make
 
 # Comando padrão ao iniciar o container
-CMD ["./main"]
+CMD ["sh", "-c", "valgrind --leak-check=full --log-file=/app/valgrind-report.txt ./main && cat /app/valgrind-report.txt"]
