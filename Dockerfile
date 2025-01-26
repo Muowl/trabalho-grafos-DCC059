@@ -24,5 +24,5 @@ WORKDIR /app/build
 RUN rm -rf CMakeCache.txt CMakeFiles
 RUN cmake .. && make
 
-# Comando padrão ao iniciar o container
-CMD ["sh", "-c", "valgrind --leak-check=full --log-file=/app/valgrind-report.txt ./main && cat /app/valgrind-report.txt"]
+# Comando padrão ao iniciar o container, a parte do \u001b[33m e \u001b[0m é para colorir o texto de log do Valgrind em amarelo
+CMD ["sh", "-c", "valgrind --leak-check=full --log-file=/app/valgrind-report.txt ./main && echo -e '\u001b[33m' && cat /app/valgrind-report.txt && echo -e '\u001b[0m'"]
