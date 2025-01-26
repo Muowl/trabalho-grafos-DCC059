@@ -1,9 +1,9 @@
-#include <iostream>
-#include <string>
+#include "leitura.h"
 
 using namespace std;
 
 int main() {
-    cout << "Teste CMake\n";
+    //Criar objeto da classe leitura
+    leitura leitura("../entradas/grafo.txt");
     return 0;
 }
