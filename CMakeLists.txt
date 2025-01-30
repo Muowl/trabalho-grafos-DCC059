@@ -15,6 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 set(SOURCES
     main.cpp
     # Adicioar aqui outros arquivos .cpp quando forem criados
+    src/leitura.cpp
     # src/grafo_lista.cpp
     # src/grafo_matriz.cpp
 )

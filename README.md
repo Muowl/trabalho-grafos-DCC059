@@ -30,12 +30,12 @@ O trabalho está sendo desenvolvido e testado na ultima versão do Ubuntu (atrav
 ## Execução do programa (CMake - Linux)
 1. **Criar o diretório de build**:
     ```bash
-    mkdir build
+    mkdir -p build
     ```
 
-2. **Entrar no diretório de build**:
+2. **Limpar o conteúdo do diretório de build (se existir) e entrar no diretório**:
     ```bash
-    cd build
+    rm -rf build/* && cd build
     ```
 
 3. **Gerar os arquivos de construção**:
