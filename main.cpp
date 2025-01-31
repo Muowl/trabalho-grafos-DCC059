@@ -11,7 +11,7 @@ int main() {
     std::cout << "Ponderado arestas : " << l.get_ponderado_arestas() << std::endl;
 
     // Chamar a função de impressão de nós, precisa de ajustar a implementação
-    l.imprimir_matriz_nos();
+    l.imprimir_matriz_info();
     
     return 0;
 }
