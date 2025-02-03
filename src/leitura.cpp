@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "../include/leitura.h"
 
 leitura::leitura(const std::string &filename)
@@ -30,15 +31,19 @@ leitura::leitura(const std::string &filename)
 
     // contar quantas linhas restam (cada uma contendo "origem destino peso")
     std::streampos currentPos = grafotxt.tellg();
-    int linesCount = 0;
+    int validCount = 0;
     {
         std::string temp;
         while (std::getline(grafotxt, temp))
         {
-            if (!temp.empty()) linesCount++;
+            //(origem, destino, peso)
+            int o, d;
+            float p;
+            std::istringstream iss(temp);
+            if (iss >> o >> d >> p) validCount++;
         }
     }
-    total_lin = linesCount;
+    total_lin = validCount;
 
     // retornar ao ponto de leitura
     grafotxt.clear();
@@ -57,7 +62,7 @@ leitura::leitura(const std::string &filename)
     {
         int origem, destino;
         float peso;
-        grafotxt >> origem >> destino >> peso;
+        if (!(grafotxt >> origem >> destino >> peso)) break;
 
         matriz_info[row][0] = static_cast<float>(origem);
         matriz_info[row][1] = static_cast<float>(destino);
