@@ -26,9 +26,19 @@ public:
     bool eh_direcionado() const { return direcionado; }
     bool vertice_ponderado() const { return verticesPonderados; }
     bool aresta_ponderada() const { return arestasPonderadas; }
+
+    // Assumindo grafo não direcionado para o trabalho
     virtual bool eh_completo() const {
-        return false;
+        int n = get_ordem();
+        if(n <= 1)
+            return true;
+        for (int i = 0; i < n; i++) {
+            if (get_grau(i) != n - 1)
+                return false;
+        }
+        return true;
     }
+
     virtual bool carrega_grafo(const std::string &filename) {
         // Usa a classe leitura para carregar os dados do arquivo e inicializar os atributos
         leitura l(filename);
