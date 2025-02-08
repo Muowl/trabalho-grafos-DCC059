@@ -1,5 +1,6 @@
 #include "leitura.h"
 #include "grafo_lista.h"
+#include "grafo_matriz.h"
 #include "no.h"
 #include "aresta.h"
 #include <iostream>
@@ -37,6 +38,37 @@ int main() {
         cout << endl;
     } else {
         cout << "Erro ao carregar grafo_lista." << endl;
+    }
+
+    // Teste para verificar se grafo_matriz está sendo criado corretamente
+    grafo_matriz gm;
+    if (gm.carrega_grafo("../entradas/grafo.txt")) {
+        cout << "\ngrafo_matriz carregado com sucesso." << endl;
+
+        // Imprimindo os vértices
+        cout << "Vertices: ";
+        for (int i = 0; i < gm.get_ordem(); i++) {
+            no* n = gm.get_no(i);
+            if (n != nullptr) {
+                cout << n->id << " ";
+            }
+        }
+        cout << endl;
+
+        // Imprimindo as arestas
+        cout << "Arestas: ";
+        for (int i = 0; i < gm.get_ordem(); i++) {
+            for (int j = 0; j < gm.get_ordem(); j++) {
+                aresta* a = gm.get_aresta(i, j);
+                if (a != nullptr) {
+                    cout << "(" << a->origem << ", " << a->destino << ", " << a->peso << ") ";
+                    delete a; // Liberar a memória alocada para a aresta
+                }
+            }
+        }
+        cout << endl;
+    } else {
+        cout << "Erro ao carregar grafo_matriz." << endl;
     }
     
     return 0;

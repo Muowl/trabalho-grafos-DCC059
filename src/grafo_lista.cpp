@@ -1,5 +1,4 @@
 #include "../include/grafo_lista.h"
-
 #include "grafo_lista.h"
 #include "../include/leitura.h"
 #include <iostream>

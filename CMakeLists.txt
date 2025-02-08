@@ -17,7 +17,7 @@ set(SOURCES
     # Adicioar aqui outros arquivos .cpp quando forem criados
     src/leitura.cpp
     src/grafo_lista.cpp
-    # src/grafo_matriz.cpp
+    src/grafo_matriz.cpp
 )
 
 # Criar executável

@@ -6,19 +6,15 @@
 #include "no.h"
 #include "aresta.h"
 #include <iostream>
+#include <string>
 
 class grafo_matriz: public grafo {
     private:
-        float matriz_adj[MAX_VERTICES][MAX_VERTICES];  
+        float matriz_adj[MAX_VERTICES][MAX_VERTICES];
         no nos[MAX_VERTICES];
+        
     public:
-        grafo_matriz(int ordem, bool direcionado, bool verticesPonderados, bool arestasPonderadas)
-            : grafo() {
-            this->ordem = ordem;
-            this->direcionado = direcionado;
-            this->verticesPonderados = verticesPonderados;
-            this->arestasPonderadas = arestasPonderadas;
-
+        grafo_matriz() : grafo() {
             for (int i = 0; i < MAX_VERTICES; i++) {
                 for (int j = 0; j < MAX_VERTICES; j++) {
                     matriz_adj[i][j] = 0;
@@ -32,7 +28,10 @@ class grafo_matriz: public grafo {
         void add_aresta(int origem, int destino, float peso);
 
         aresta** get_vizinhos(int id);
+
         void remove_no(int id);
-}
+
+        bool carrega_grafo(const std::string &filename);
+};
 
 #endif // GRAFO_MATRIZ_H
