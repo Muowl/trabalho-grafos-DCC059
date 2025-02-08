@@ -8,10 +8,16 @@
 // Classe derivada que utiliza lista encadeada para armazenar vértices e arestas
 class grafo_lista : public grafo {
 private:
-    // Usando a lista encadeada para armazenar vértices e arestas
     ListaEncadeada<no> vertices;   // cada vértice possui id e peso
     ListaEncadeada<aresta> arestas; // cada aresta armazena origem, destino e peso
 public:
     grafo_lista() : grafo() {}
     virtual ~grafo_lista() {}
+
+    // Carrega o grafo a partir do arquivo de entrada utilizando a classe leitura
+    bool carrega_grafo(const std::string &filename);
+
+    // Getters para testes
+    const ListaEncadeada<no>& get_vertices() const { return vertices; }
+    const ListaEncadeada<aresta>& get_arestas() const { return arestas; }
 };

@@ -28,4 +28,5 @@ public:
     bool get_ponderado_vertices() { return ponderado_vertices; }
     bool get_ponderado_arestas() { return ponderado_arestas; }
     float **get_matriz_info() { return matriz_info; }
+    int get_total_lin() const { return total_lin; } // novo getter para total de linhas
 };
