@@ -16,6 +16,12 @@ public:
 
     // Carrega o grafo a partir do arquivo de entrada utilizando a classe leitura
     bool carrega_grafo(const std::string &filename);
+    
+    // Adicionado: retorna a quantidade de componentes conexas
+    virtual int n_conexo() const override;
+
+    // Retorna o grau do grafo
+    virtual int get_grau() const override;
 
     // Getters para testes
     const ListaEncadeada<no>& get_vertices() const { return vertices; }

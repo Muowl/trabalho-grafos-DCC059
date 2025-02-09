@@ -36,6 +36,11 @@ int main() {
             cout << "(" << it->origem << ", " << it->destino << ", " << it->peso << ") ";
         }
         cout << endl;
+
+        // Teste das novas funções: get_grau e n_conexo
+        cout << "Grau do grafo: " << gl.get_grau() << endl;
+        cout << "Ordem do grafo: " << gl.get_ordem() << endl;
+        cout << "Quantidade de componentes conexas: " << gl.n_conexo() << endl;
     } else {
         cout << "Erro ao carregar grafo_lista." << endl;
     }

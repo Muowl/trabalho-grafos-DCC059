@@ -18,7 +18,7 @@ public:
         // Exemplo: retornar 1 se o grafo for conexo
         return 1;
     }
-    virtual int get_grau(int vertex) const {
+    virtual int get_grau() const {
         // A implementação concreta precisa utilizar os métodos de acesso, que são definidos nas classes filhas
         return 0;
     }
@@ -33,7 +33,7 @@ public:
         if(n <= 1)
             return true;
         for (int i = 0; i < n; i++) {
-            if (get_grau(i) != n - 1)
+            if (get_grau() != n - 1)
                 return false;
         }
         return true;
