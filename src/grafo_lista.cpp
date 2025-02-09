@@ -8,6 +8,9 @@ bool grafo_lista::carrega_grafo(const std::string &filename) {
     leitura l(filename);
 
     int numNos = l.get_num_nos();
+    // Adicionado: atualiza a ordem do grafo com o número de nós lidos
+    ordem = numNos;
+    
     bool ponderadoVertices = l.get_ponderado_vertices();
     
     // Cria nós com id de 0 a numNos-1.
@@ -32,30 +35,34 @@ bool grafo_lista::carrega_grafo(const std::string &filename) {
     return true;
 }
 
-// Implementação de n_conexo usando brute force
 int grafo_lista::n_conexo() const {
-    // Obter quantidade de vértices
     int n = vertices.get_size();
     if (n == 0)
         return 0;
 
-    // Cria array para os pais
     int *parent = new int[n];
     for (int i = 0; i < n; i++) {
         parent[i] = i;
     }
 
-    // Função inline para encontrar o representante (com iteração)
     auto find = [&parent](int x) -> int {
         while (parent[x] != x)
             x = parent[x];
         return x;
     };
 
-    // Iterar sobre a lista de arestas e unir os conjuntos
     for (auto it = arestas.begin(); it != arestas.end(); ++it) {
-        int u = it->origem;
-        int v = it->destino;
+        // Ajuste para índices 0-based (se necessário)
+        int u = it->origem - 1; // Subtrai 1 se os vértices são 1-based
+        int v = it->destino - 1;
+
+        // Verifica se u e v são índices válidos
+        if (u < 0 || u >= n || v < 0 || v >= n) {
+            // Tratar erro: vértice inválido na aresta
+            delete[] parent;
+            throw std::runtime_error("Vértice inválido na aresta");
+        }
+
         int pu = find(u);
         int pv = find(v);
         if (pu != pv) {
@@ -63,7 +70,6 @@ int grafo_lista::n_conexo() const {
         }
     }
 
-    // Contar raízes (componentes)
     int componentes = 0;
     for (int i = 0; i < n; i++) {
         if (find(i) == i)
