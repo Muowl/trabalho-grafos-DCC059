@@ -56,6 +56,44 @@ void grafo_matriz::remove_no(int id) {
     }
 }
 
+int grafo_matriz::n_conexo() const {
+    bool visitado[MAX_VERTICES] = {false};
+    for (int i = 0; i < ordem; i++) { 
+        for (int j = 0; j < ordem; j++) {
+            if (i != j) {
+                bool encontrado = false;
+                for (int k = 0; k < ordem; k++) { // verifica se existe um caminho entre i e j
+                    if (matriz_adj[i][k] != 0 && matriz_adj[k][j] != 0) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) { // se não existe caminho, o grafo não é conexo
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int grafo_matriz::get_grau() const {
+    int grau = 0;
+    for (int i = 0; i < ordem; i++) {
+        int grauNo = 0;
+        for (int j = 0; j < ordem; j++) { // verifica para cada nó o número de arestas incidentes
+            if (matriz_adj[i][j] != 0) {
+                grauNo++;
+            }
+        }
+        if (grauNo > grau) { // atualiza o grau máximo
+            grau = grauNo;
+        }
+    }
+    return grau;
+}
+
+
 bool grafo_matriz::carrega_grafo(const std::string &filename) {
     // Cria objeto de leitura para o arquivo
     leitura l(filename);
