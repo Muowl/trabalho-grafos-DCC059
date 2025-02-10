@@ -1,6 +1,5 @@
 #include "../include/grafo_matriz.h"
 #include "../include/leitura.h"
-#include <queue>
 
 no* grafo_matriz::get_no(int id) {
     if (id >= 0 && id < ordem) {
@@ -31,6 +30,9 @@ void grafo_matriz::add_aresta(int origem, int destino, float peso) {
         if (!direcionado) {
             matriz_adj[destino][origem] = peso;
         }
+        std::cout << "Aresta adicionada: (" << origem << ", " << destino << ", " << peso << ")" << std::endl;
+    } else {
+        std::cout << "Erro ao adicionar aresta: (" << origem << ", " << destino << ", " << peso << ")" << std::endl;
     }
 }
 
@@ -58,39 +60,60 @@ void grafo_matriz::remove_no(int id) {
 }
 
 int grafo_matriz::n_conexo() const {
-    for (int i = 0; i < ordem; i++) {
-        for (int j = 0; j < ordem; j++) {
-            if (i != j) {
-                bool found = false;
-                for (int k = 0; k < ordem; k++) {
-                    if (matriz_adj[i][k] != 0 && matriz_adj[k][j] != 0) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    return 0;
+    int n = ordem;
+    if (n == 0)
+        return 0;
+
+    int *parent = new int[n];
+    for (int i = 0; i < n; i++) {
+        parent[i] = i;
+    }
+
+    auto find = [&parent](int x) -> int {
+        while (parent[x] != x)
+            x = parent[x];
+        return x;
+    };
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (matriz_adj[i][j] != 0) {
+                int pu = find(i);
+                int pv = find(j);
+                if (pu != pv) {
+                    parent[pv] = pu;
                 }
             }
         }
     }
-    return 1;
+
+    int componentes = 0;
+    for (int i = 0; i < n; i++) {
+        if (find(i) == i)
+            componentes++;
+    }
+
+    delete[] parent;
+    return componentes == 1 ? 1 : 0;
 }
 
 int grafo_matriz::get_grau() const {
-    int grau = 0;
+    int maxDegree = 0;
     for (int i = 0; i < ordem; i++) {
-        int grauNo = 0;
+        int degree = 0;
         for (int j = 0; j < ordem; j++) {
             if (matriz_adj[i][j] != 0) {
-                grauNo++;
+                degree++;
+            }
+            if (direcionado && matriz_adj[j][i] != 0) {
+                degree++;
             }
         }
-        if (grauNo > grau) {
-            grau = grauNo;
+        if (degree > maxDegree) {
+            maxDegree = degree;
         }
     }
-    return grau;
+    return maxDegree;
 }
 
 bool grafo_matriz::carrega_grafo(const std::string &filename) {
