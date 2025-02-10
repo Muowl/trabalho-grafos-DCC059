@@ -30,10 +30,7 @@ void grafo_matriz::add_aresta(int origem, int destino, float peso) {
         if (!direcionado) {
             matriz_adj[destino][origem] = peso;
         }
-        std::cout << "Aresta adicionada: (" << origem << ", " << destino << ", " << peso << ")" << std::endl;
-    } else {
-        std::cout << "Erro ao adicionar aresta: (" << origem << ", " << destino << ", " << peso << ")" << std::endl;
-    }
+    } 
 }
 
 aresta** grafo_matriz::get_vizinhos(int id) {
