@@ -27,26 +27,10 @@ public:
     bool vertice_ponderado() const { return verticesPonderados; }
     bool aresta_ponderada() const { return arestasPonderadas; }
 
-    // Assumindo grafo não direcionado para o trabalho
+    // Assumindo digrafo simples e grafo simples
     virtual bool eh_completo() const {
-        int n = get_ordem();
-        if(n <= 1)
-            return true;
-        for (int i = 0; i < n; i++) {
-            if (get_grau() != n - 1)
-                return false;
-        }
-        return true;
+
     }
 
-    virtual bool carrega_grafo(const std::string &filename) {
-        // Usa a classe leitura para carregar os dados do arquivo e inicializar os atributos
-        leitura l(filename);
-        ordem = l.get_num_nos();
-        direcionado = l.get_direcionado();
-        verticesPonderados = l.get_ponderado_vertices();
-        arestasPonderadas = l.get_ponderado_arestas();
-        // A partir daqui, a classe derivada deve processar os dados lidos para preencher as estruturas internas
-        return true;
-    }
+    virtual bool carrega_grafo(const std::string &filename);
 };
