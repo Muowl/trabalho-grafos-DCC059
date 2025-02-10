@@ -25,4 +25,5 @@ RUN rm -rf CMakeCache.txt CMakeFiles
 RUN cmake .. && make
 
 # Comando padrão ao iniciar o container, a parte do \u001b[33m e \u001b[0m é para colorir o texto de log do Valgrind em amarelo
-CMD ["sh", "-c", "valgrind --leak-check=full --log-file=/app/valgrind-report.txt ./main && echo -e '\u001b[33m' && cat /app/valgrind-report.txt && echo -e '\u001b[0m'"]
+# Alterar o -l para grafo_lista ou -m para grafo_matriz
+CMD ["sh", "-c", "valgrind --leak-check=full --log-file=/app/valgrind-report.txt ./main -d -l ../entradas/grafo.txt && echo -e '\u001b[33m' && cat /app/valgrind-report.txt && echo -e '\u001b[0m'"]
