@@ -4,5 +4,5 @@
 - Felipe Lazzarini Cunha
 - Luiz Alberto Werneck Silva
 
-## Instrução
+## Aviso
 - As partes do trabalho estão sendo desenvolvidas em suas respectivas branches, e no final o resultado será incluido na main
