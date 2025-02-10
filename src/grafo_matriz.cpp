@@ -61,14 +61,14 @@ int grafo_matriz::n_conexo() const {
     for (int i = 0; i < ordem; i++) { 
         for (int j = 0; j < ordem; j++) {
             if (i != j) {
-                bool encontrado = false;
+                bool caminho = false;
                 for (int k = 0; k < ordem; k++) { // verifica se existe um caminho entre i e j
                     if (matriz_adj[i][k] != 0 && matriz_adj[k][j] != 0) {
-                        encontrado = true;
+                        caminho = true;
                         break;
                     }
                 }
-                if (!encontrado) { // se não existe caminho, o grafo não é conexo
+                if (!caminho) { // se não existe caminho, o grafo não é conexo
                     return 0;
                 }
             }

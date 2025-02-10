@@ -72,6 +72,9 @@ int main() {
             }
         }
         cout << endl;
+        cout << "Grau do grafo: " << gm.get_grau() << endl;
+        cout << "Ordem do grafo: " << gm.get_ordem() << endl;
+        cout << "Quantidade de componentes conexas: " << gm.n_conexo() << endl;
     } else {
         cout << "Erro ao carregar grafo_matriz." << endl;
     }
