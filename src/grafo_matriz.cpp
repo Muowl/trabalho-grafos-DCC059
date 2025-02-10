@@ -102,7 +102,7 @@ int grafo_matriz::get_grau() const {
             if (matriz_adj[i][j] != 0) {
                 degree++;
             }
-            if (direcionado && matriz_adj[j][i] != 0) {
+            if (direcionado && matriz_adj[j][i] != 0 && i != j) {
                 degree++;
             }
         }
@@ -110,7 +110,7 @@ int grafo_matriz::get_grau() const {
             maxDegree = degree;
         }
     }
-    return maxDegree;
+    return maxDegree - 1;
 }
 
 bool grafo_matriz::carrega_grafo(const std::string &filename) {
