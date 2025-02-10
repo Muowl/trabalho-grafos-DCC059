@@ -28,7 +28,7 @@ public:
     bool aresta_ponderada() const { return arestasPonderadas; }
     virtual int get_grau_no(int id) const { return 0; }
 
-    // Assumindo grafo não direcionado para o trabalho
+    // Assumindo digrafo simples e grafo simples
     virtual bool eh_completo() const {
         if(get_ordem() <= 1)
             return true;

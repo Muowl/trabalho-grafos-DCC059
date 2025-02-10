@@ -6,6 +6,10 @@
 bool grafo_lista::carrega_grafo(const std::string &filename) {
     // Cria objeto de leitura para o arquivo
     leitura l(filename);
+    ordem = l.get_num_nos();
+    direcionado = l.get_direcionado();
+    verticesPonderados = l.get_ponderado_vertices();
+    arestasPonderadas = l.get_ponderado_arestas();
 
     int numNos = l.get_num_nos();
     // Adicionado: atualiza a ordem do grafo com o número de nós lidos
