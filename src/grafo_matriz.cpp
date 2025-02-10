@@ -148,5 +148,9 @@ bool grafo_matriz::carrega_grafo(const std::string &filename) {
     }
 
     // Retorna true se o grafo foi carregado com sucesso
+    ordem = l.get_num_nos();
+    direcionado = l.get_direcionado();
+    verticesPonderados = l.get_ponderado_vertices();
+    arestasPonderadas = l.get_ponderado_arestas();
     return true;
 }
