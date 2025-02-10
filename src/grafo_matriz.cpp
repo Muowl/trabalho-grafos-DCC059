@@ -1,5 +1,6 @@
 #include "../include/grafo_matriz.h"
 #include "../include/leitura.h"
+#include <queue>
 
 no* grafo_matriz::get_no(int id) {
     if (id >= 0 && id < ordem) {
@@ -56,6 +57,42 @@ void grafo_matriz::remove_no(int id) {
     }
 }
 
+int grafo_matriz::n_conexo() const {
+    for (int i = 0; i < ordem; i++) {
+        for (int j = 0; j < ordem; j++) {
+            if (i != j) {
+                bool found = false;
+                for (int k = 0; k < ordem; k++) {
+                    if (matriz_adj[i][k] != 0 && matriz_adj[k][j] != 0) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int grafo_matriz::get_grau() const {
+    int grau = 0;
+    for (int i = 0; i < ordem; i++) {
+        int grauNo = 0;
+        for (int j = 0; j < ordem; j++) {
+            if (matriz_adj[i][j] != 0) {
+                grauNo++;
+            }
+        }
+        if (grauNo > grau) {
+            grau = grauNo;
+        }
+    }
+    return grau;
+}
+
 bool grafo_matriz::carrega_grafo(const std::string &filename) {
     // Cria objeto de leitura para o arquivo
     leitura l(filename);
@@ -84,8 +121,8 @@ bool grafo_matriz::carrega_grafo(const std::string &filename) {
     float **matriz = l.get_matriz_info();
 
     for (int i = 0; i < totalArestas; i++) {
-        int origem = static_cast<int>(matriz[i][0]);
-        int destino = static_cast<int>(matriz[i][1]);
+        int origem = static_cast<int>(matriz[i][0]) - 1; // Converter para índice baseado em 0
+        int destino = static_cast<int>(matriz[i][1]) - 1; // Converter para índice baseado em 0
         float peso = matriz[i][2];
         add_aresta(origem, destino, peso);
     }

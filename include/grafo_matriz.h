@@ -30,6 +30,9 @@ class grafo_matriz: public grafo {
         aresta** get_vizinhos(int id);
 
         void remove_no(int id);
+        
+        int n_conexo() const;
+        int get_grau() const;
 
         bool carrega_grafo(const std::string &filename);
 };
