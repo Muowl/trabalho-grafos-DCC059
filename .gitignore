@@ -49,3 +49,5 @@ _deps
 # Build directories
 build/
 out/
+
+*.tex
