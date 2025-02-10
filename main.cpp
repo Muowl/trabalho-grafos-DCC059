@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     cout << "Arestas ponderadas: " << (g->aresta_ponderada() ? "Sim" : "Não") << endl;
     cout << "Completo: " << (g->eh_completo() ? "Sim" : "Não") << endl;
     
+
     delete g;
     return 0;
 }
