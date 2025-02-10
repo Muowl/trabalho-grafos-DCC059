@@ -4,8 +4,5 @@
 - Felipe Lazzarini Cunha
 - Luiz Alberto Werneck Silva
 
-## Documentação
-- Arquivo: Documentação Trabalho Parte 1.pdf
-
-## Compilação (Windows)
-- g++ -o main.exe main.cpp grafo_lista.cpp grafo_matriz.cpp
+## Instrução
+- As partes do trabalho estão sendo desenvolvidas em suas respectivas branches, e no final o resultado será incluido na main
