@@ -53,9 +53,7 @@ public:
         if(get_ordem() <= 1)
             return true;
         for (int i = 0; i < get_ordem(); i++) {
-            std::cout << "Grau : " << get_grau() << std::endl;
             if (get_grau() - 1 != get_grau_no(i))
-                std::cout << "Grau i : " << get_grau_no(i) << std::endl;
                 return false;
         }
         return true;
