@@ -110,7 +110,7 @@ int grafo_matriz::get_grau() const {
             maxDegree = degree;
         }
     }
-    return maxDegree - 1;
+    return maxDegree;
 }
 
 bool grafo_matriz::carrega_grafo(const std::string &filename) {

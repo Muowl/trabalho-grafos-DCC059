@@ -45,16 +45,30 @@ int main(int argc, char** argv) {
         delete g;
         return 1;
     }
-    
+
+    if(flagTipo == "-m") {
+        cout << filename << endl;
+        cout << "Excluindo nó 1..." << endl;
+
+        cout << "Excluindo primeira aresta do nó 2..." << endl;
+
+    } else if(flagTipo == "-l") {
+        cout << filename << endl;
+        cout << "Excluindo nó 1..." << endl;
+
+        dynamic_cast<grafo_lista*>(g)->deleta_no(1);
+
+        cout << "Excluindo primeira aresta do nó 2..." << endl;
+        dynamic_cast<grafo_lista*>(g)->deleta_aresta(2, 0);
+    }
+
     // Imprime as informações do grafo
-    cout << filename << endl;
     cout << "Grau: " << g->get_grau() << endl;
     cout << "Ordem: " << g->get_ordem() << endl;
     cout << "Direcionado: " << (g->eh_direcionado() ? "Sim" : "Não") << endl;
     cout << "Vertices ponderados: " << (g->vertice_ponderado() ? "Sim" : "Não") << endl;
     cout << "Arestas ponderadas: " << (g->aresta_ponderada() ? "Sim" : "Não") << endl;
     cout << "Completo: " << (g->eh_completo() ? "Sim" : "Não") << endl;
-    
 
     delete g;
     return 0;

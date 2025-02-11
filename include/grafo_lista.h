@@ -26,4 +26,10 @@ public:
     // Getters para testes
     const ListaEncadeada<no>& get_vertices() const { return vertices; }
     const ListaEncadeada<aresta>& get_arestas() const { return arestas; }
+
+    // Métodos parte 2
+    void novo_no(float peso);
+    void nova_aresta(int origem, int destino, float peso);
+    void deleta_no(int id);
+    void deleta_aresta(int origem, int destino);
 };

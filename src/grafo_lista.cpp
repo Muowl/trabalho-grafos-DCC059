@@ -84,7 +84,6 @@ int grafo_lista::n_conexo() const {
     return componentes;
 }
 
-// Adicionado: implementação de get_grau para calcular o grau do grafo
 int grafo_lista::get_grau() const {
     int maxDegree = 0;
     // Iterar sobre cada vértice
@@ -107,5 +106,40 @@ int grafo_lista::get_grau() const {
         if (degree > maxDegree)
             maxDegree = degree;
     }
-    return maxDegree - 1;
+    return maxDegree;
+}
+
+// Parte 2
+
+void grafo_lista::novo_no(float peso) {
+    no novoNo(ordem, peso);
+    vertices.push_back(novoNo);
+    ordem++;
+}
+
+void grafo_lista::nova_aresta(int origem, int destino, float peso) {
+    if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem) {
+        aresta a(origem, destino, peso);
+        arestas.push_back(a);
+    }
+}
+
+void grafo_lista::deleta_no(int id) {
+    arestas.remove_if([&](const aresta &a) {
+        return (a.origem == id || a.destino == id);
+    });
+    vertices.remove_if([&](const no &n) {
+        return (n.id == id);
+    });
+}
+
+void grafo_lista::deleta_aresta(int origem, int destino) {
+    bool removed = false;
+    arestas.remove_if([&](const aresta &a) {
+        if (!removed && a.origem == origem && a.destino == destino) {
+            removed = true;
+            return true;
+        }
+        return false;
+    });
 }

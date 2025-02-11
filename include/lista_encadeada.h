@@ -22,6 +22,32 @@ public:
     void clear();
     int get_size() const;
     bool empty() const;
+    
+    template <typename Predicate>
+    void remove_if(Predicate pred) {
+        Node* prev = nullptr;
+        Node* curr = head;
+        while (curr) {
+            if (pred(curr->data)) {
+                Node* nextNode = curr->next;
+                // Remove curr from the linked list
+                if (prev) {
+                    prev->next = nextNode;
+                } else {
+                    head = nextNode;
+                }
+                if (curr == tail) {
+                    tail = prev;
+                }
+                delete curr;
+                curr = nextNode;
+                size--;
+            } else {
+                prev = curr;
+                curr = curr->next;
+            }
+        }
+    }
 
     class Iterator {
     private:
