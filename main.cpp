@@ -49,8 +49,10 @@ int main(int argc, char** argv) {
     if(flagTipo == "-m") {
         cout << filename << endl;
         cout << "Excluindo nó 1..." << endl;
+        dynamic_cast<grafo_matriz*>(g)->deleta_no(1);
 
         cout << "Excluindo primeira aresta do nó 2..." << endl;
+        dynamic_cast<grafo_matriz*>(g)->deleta_aresta(2, 0);
 
     } else if(flagTipo == "-l") {
         cout << filename << endl;
@@ -69,6 +71,13 @@ int main(int argc, char** argv) {
     cout << "Vertices ponderados: " << (g->vertice_ponderado() ? "Sim" : "Não") << endl;
     cout << "Arestas ponderadas: " << (g->aresta_ponderada() ? "Sim" : "Não") << endl;
     cout << "Completo: " << (g->eh_completo() ? "Sim" : "Não") << endl;
+
+    if (flagTipo == "-m") {
+        grafo_matriz::MenorMaior mm = dynamic_cast<grafo_matriz*>(g)->menor_maior_distancia();
+        cout << "Maior menor distância: (" << mm.no1 << "-" << mm.no2 << ") " << mm.distancia << endl;
+    } else if (flagTipo == "-l") {  
+        cout << "Maior menor distância: " << endl;
+    }
 
     delete g;
     return 0;

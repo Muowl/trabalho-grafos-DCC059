@@ -26,6 +26,10 @@ void grafo_matriz::add_no(float peso) {
 }
 
 void grafo_matriz::add_aresta(int origem, int destino, float peso) {
+    // Ajuste: converter para índice 0-based
+    origem--; // Converter de 1-based para 0-based
+    destino--; // Converter de 1-based para 0-based
+    
     if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem) {
         matriz_adj[origem][destino] = peso;
         if (!direcionado) {
@@ -74,6 +78,9 @@ void grafo_matriz::nova_aresta(int origem, int destino, float peso) {
 }
 
 void grafo_matriz::deleta_no(int id) {
+    // Converter de 1-based para 0-based
+    id--;
+    
     if (id >= 0 && id < ordem) {
         // Remover todas as arestas associadas ao nó
         for (int i = 0; i < ordem; i++) {
@@ -97,26 +104,14 @@ void grafo_matriz::deleta_no(int id) {
         for (int i = 0; i < ordem; i++) {
             nos[i].id = i;
         }
-
-        // Redimensionar a matriz de adjacência para refletir a nova ordem
-        float** nova_matriz = new float*[ordem];
-        for (int i = 0; i < ordem; ++i) {
-            nova_matriz[i] = new float[ordem]();
-            for (int j = 0; j < ordem; ++j) {
-                nova_matriz[i][j] = matriz_adj[i][j];
-            }
-        }
-
-        for (int i = 0; i < ordem + 1; ++i) {
-            delete[] matriz_adj[i];
-        }
-        delete[] matriz_adj;
-
-        matriz_adj = nova_matriz;
     }
 }
 
 void grafo_matriz::deleta_aresta(int origem, int destino) {
+    // Converter de 1-based para 0-based
+    origem--;
+    destino--;
+    
     if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem) {
         matriz_adj[origem][destino] = 0;
         if (!direcionado) {
@@ -207,12 +202,72 @@ bool grafo_matriz::carrega_grafo(const std::string &filename) {
     float **matriz = l.get_matriz_info();
 
     for (int i = 0; i < totalArestas; i++) {
-        int origem = static_cast<int>(matriz[i][0]);
-        int destino = static_cast<int>(matriz[i][1]);
+        int origem = static_cast<int>(matriz[i][0]);  // Já está em 1-based
+        int destino = static_cast<int>(matriz[i][1]); // Já está em 1-based
         float peso = matriz[i][2];
-        add_aresta(origem, destino, peso);
+        add_aresta(origem, destino, peso); // add_aresta fará a conversão para 0-based
     }
 
-    // Retorna true se o grafo foi carregado com sucesso
     return true;
+}
+
+grafo_matriz::MenorMaior grafo_matriz::menor_maior_distancia() const {
+    const float INF = 1e9f; // "Infinito" como valor alto
+
+    // Aloca matriz de distâncias
+    float** dist = new float*[ordem];
+    for (int i = 0; i < ordem; i++) {
+        dist[i] = new float[ordem];
+    }
+
+    // Inicializa a matriz de distâncias
+    for (int i = 0; i < ordem; i++) {
+        for (int j = 0; j < ordem; j++) {
+            if (i == j) {
+                dist[i][j] = 0;
+            } else if (matriz_adj[i][j] != 0) {
+                dist[i][j] = matriz_adj[i][j];
+            } else {
+                dist[i][j] = INF;
+            }
+        }
+    }
+
+    // Algoritmo de Floyd-Warshall
+    for (int k = 0; k < ordem; k++) {
+        for (int i = 0; i < ordem; i++) {
+            for (int j = 0; j < ordem; j++) {
+                float novo = dist[i][k] + dist[k][j];
+                if (novo < dist[i][j]) {
+                    dist[i][j] = novo;
+                }
+            }
+        }
+    }
+
+    // Procura o par de nós com a maior distância (distância máxima finita)
+    int no1 = -1, no2 = -1;
+    float maxDist = -1;
+    for (int i = 0; i < ordem; i++) {
+        for (int j = 0; j < ordem; j++) {
+            if (i != j && dist[i][j] < INF && dist[i][j] > maxDist) {
+                maxDist = dist[i][j];
+                no1 = i;
+                no2 = j;
+            }
+        }
+    }
+
+    // Libera memória da matriz auxiliar
+    for (int i = 0; i < ordem; i++) {
+        delete[] dist[i];
+    }
+    delete[] dist;
+
+    // Retorna estrutura com índices convertidos para 1-based
+    MenorMaior ret;
+    ret.no1 = no1 + 1;
+    ret.no2 = no2 + 1;
+    ret.distancia = maxDist;
+    return ret;
 }

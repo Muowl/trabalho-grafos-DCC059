@@ -35,20 +35,40 @@ private:
     }
 
 public:
-    grafo_matriz() : grafo(), capacidade(10) {
+    // Estrutura auxiliar para retornar os nós com a maior distância
+    struct MenorMaior {
+        int no1;
+        int no2;
+        float distancia;
+    };
+
+    grafo_matriz() {
+        ordem = 0;
+        capacidade = 10;
+        direcionado = false;
+        verticesPonderados = false;
+        arestasPonderadas = false;
+        
+        nos = new no[capacidade];
+        
         matriz_adj = new float*[capacidade];
-        for (int i = 0; i < capacidade; ++i) {
+        for (int i = 0; i < capacidade; i++) {
             matriz_adj[i] = new float[capacidade]();
         }
-        nos = new no[capacidade];
     }
 
     ~grafo_matriz() {
-        for (int i = 0; i < capacidade; ++i) {
-            delete[] matriz_adj[i];
+        if (matriz_adj != nullptr) {
+            for (int i = 0; i < capacidade; i++) {
+                if (matriz_adj[i] != nullptr) {
+                    delete[] matriz_adj[i];
+                }
+            }
+            delete[] matriz_adj;
         }
-        delete[] matriz_adj;
-        delete[] nos;
+        if (nos != nullptr) {
+            delete[] nos;
+        }
     }
 
     no* get_no(int id);
@@ -62,7 +82,7 @@ public:
     void remove_no(int id);
     
     int n_conexo() const;
-    int get_grau() const;
+    int get_grau() const override;
 
     bool carrega_grafo(const std::string &filename);
 
@@ -71,6 +91,8 @@ public:
     void nova_aresta(int origem, int destino, float peso);
     void deleta_no(int id);
     void deleta_aresta(int origem, int destino);
+
+    MenorMaior menor_maior_distancia() const;
 };
 
 #endif // GRAFO_MATRIZ_H
