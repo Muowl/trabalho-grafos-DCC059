@@ -121,16 +121,25 @@ void grafo_lista::nova_aresta(int origem, int destino, float peso) {
     if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem) {
         aresta a(origem, destino, peso);
         arestas.push_back(a);
+        // Se o grafo não for direcionado, adiciona a aresta reversa
+        if (!direcionado) {
+            aresta reversa(destino, origem, peso);
+            arestas.push_back(reversa);
+        }
     }
 }
 
 void grafo_lista::deleta_no(int id) {
+    // Remove arestas ligadas ao vértice
     arestas.remove_if([&](const aresta &a) {
         return (a.origem == id || a.destino == id);
     });
+    // Remove o vértice
     vertices.remove_if([&](const no &n) {
         return (n.id == id);
     });
+    // Atualiza a ordem do grafo
+    ordem--;
 }
 
 void grafo_lista::deleta_aresta(int origem, int destino) {
@@ -142,4 +151,15 @@ void grafo_lista::deleta_aresta(int origem, int destino) {
         }
         return false;
     });
+    // Se o grafo não for direcionado, removemos a aresta reversa
+    if (!direcionado) {
+        removed = false;
+        arestas.remove_if([&](const aresta &a) {
+            if (!removed && a.origem == destino && a.destino == origem) {
+                removed = true;
+                return true;
+            }
+            return false;
+        });
+    }
 }
