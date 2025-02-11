@@ -130,15 +130,22 @@ void grafo_lista::nova_aresta(int origem, int destino, float peso) {
 }
 
 void grafo_lista::deleta_no(int id) {
-    // Remove arestas ligadas ao vértice
-    arestas.remove_if([&](const aresta &a) {
-        return (a.origem == id || a.destino == id);
-    });
-    // Remove o vértice
-    vertices.remove_if([&](const no &n) {
-        return (n.id == id);
-    });
-    // Atualiza a ordem do grafo
+    // Remove o vértice e suas arestas
+    vertices.remove_if([&](const no &n) { return n.id == id; });
+    arestas.remove_if([&](const aresta &a) { return a.origem == id || a.destino == id; });
+
+    // Reindexa os vértices restantes
+    int novo_id = 0;
+    for (auto& no : vertices) {
+        no.id = novo_id++;
+    }
+
+    // Atualiza as arestas com os novos IDs
+    for (auto& aresta : arestas) {
+        if (aresta.origem > id) aresta.origem--;
+        if (aresta.destino > id) aresta.destino--;
+    }
+
     ordem--;
 }
 
