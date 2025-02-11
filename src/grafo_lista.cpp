@@ -107,5 +107,5 @@ int grafo_lista::get_grau() const {
         if (degree > maxDegree)
             maxDegree = degree;
     }
-    return maxDegree;
+    return maxDegree - 1;
 }
