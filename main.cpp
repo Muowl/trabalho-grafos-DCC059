@@ -58,10 +58,10 @@ int main(int argc, char** argv) {
         cout << filename << endl;
         cout << "Excluindo nó 1..." << endl;
 
-        dynamic_cast<grafo_lista*>(g)->deleta_no(1);
+        dynamic_cast<grafo_lista*>(g)->deleta_no(1 - 1);
 
         cout << "Excluindo primeira aresta do nó 2..." << endl;
-        dynamic_cast<grafo_lista*>(g)->deleta_aresta(2, 0);
+        dynamic_cast<grafo_lista*>(g)->deleta_aresta(2 - 1, 0);
     }
 
     // Imprime as informações do grafo

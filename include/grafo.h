@@ -35,8 +35,8 @@ public:
         int degree = 0;
         // Para cada linha (aresta) da matriz
         for (int i = 0; i < total_lin; i++) {
-            int origem = static_cast<int>(matriz_info[i][0]) - 1; // converter para índice 0-based
-            int destino = static_cast<int>(matriz_info[i][1]) - 1;
+            int origem = static_cast<int>(matriz_info[i][0]);
+            int destino = static_cast<int>(matriz_info[i][1]);
             if (direcionado) {
                 if (origem == id) degree++; // saída
                 if (destino == id) degree++; // entrada
