@@ -27,14 +27,14 @@ bool grafo_lista::carrega_grafo(const std::string &filename) {
     int totalArestas = l.get_total_lin();
     float **matriz = l.get_matriz_info();
 
-    // Para cada linha da matriz_info (formato: [origem, destino, peso])
     for (int i = 0; i < totalArestas; i++) {
-        int origem  = static_cast<int>(matriz[i][0]);
-        int destino = static_cast<int>(matriz[i][1]);
+        int origem  = static_cast<int>(matriz[i][0]) - 1; // Converte para 0-based
+        int destino = static_cast<int>(matriz[i][1]) - 1;
         float peso  = matriz[i][2];
         aresta novaAresta(origem, destino, peso);
         arestas.push_back(novaAresta);
     }
+    
     // Retorna true se o grafo foi carregado com sucesso
     return true;
 }
