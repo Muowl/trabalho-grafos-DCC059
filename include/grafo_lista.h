@@ -11,6 +11,12 @@ private:
     ListaEncadeada<no> vertices;   // cada vértice possui id e peso
     ListaEncadeada<aresta> arestas; // cada aresta armazena origem, destino e peso
 public:
+    struct MenorMaior {
+        int no1;
+        int no2;
+        float distancia;
+    };
+
     grafo_lista() : grafo() {}
     virtual ~grafo_lista() {}
 
@@ -32,4 +38,6 @@ public:
     void nova_aresta(int origem, int destino, float peso);
     void deleta_no(int id);
     void deleta_aresta(int origem, int destino);
+
+    MenorMaior menor_maior_distancia() const;
 };

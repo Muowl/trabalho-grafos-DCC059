@@ -170,3 +170,66 @@ void grafo_lista::deleta_aresta(int origem, int destino) {
         });
     }
 }
+
+grafo_lista::MenorMaior grafo_lista::menor_maior_distancia() const {
+    const float INF = 1e9f;
+    int n = ordem; // número de vértices
+
+    // Aloca e inicializa matriz de distâncias.
+    float** dist = new float*[n];
+    for (int i = 0; i < n; i++) {
+        dist[i] = new float[n];
+        for (int j = 0; j < n; j++) {
+            dist[i][j] = (i == j) ? 0.0f : INF;
+        }
+    }
+
+    // Percorre todas as arestas para inicializar as distâncias diretas.
+    // As arestas já foram criadas com os índices corretos (0-based)
+    for (auto it = arestas.begin(); it != arestas.end(); ++it) {
+        int u = it->origem;
+        int v = it->destino;
+        float peso = it->peso;
+        // Se houver múltiplas arestas entre os mesmos nós, escolhe o de menor peso.
+        if (peso < dist[u][v]) {
+            dist[u][v] = peso;
+        }
+    }
+
+    // Aplica o algoritmo de Floyd–Warshall.
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                float novo = dist[i][k] + dist[k][j];
+                if (novo < dist[i][j]) {
+                    dist[i][j] = novo;
+                }
+            }
+        }
+    }
+
+    // Procura o par de nós com a maior distância mínima, ignorando INF.
+    int no1 = -1, no2 = -1;
+    float maxDist = -1.0f;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j && dist[i][j] < INF && dist[i][j] > maxDist) {
+                maxDist = dist[i][j];
+                no1 = i;
+                no2 = j;
+            }
+        }
+    }
+
+    // Libera a memória utilizada pela matriz.
+    for (int i = 0; i < n; i++) {
+        delete[] dist[i];
+    }
+    delete[] dist;
+
+    MenorMaior ret;
+    ret.no1 = no1 + 1; // converter para 1-based
+    ret.no2 = no2 + 1; // converter para 1-based
+    ret.distancia = maxDist;
+    return ret;
+}

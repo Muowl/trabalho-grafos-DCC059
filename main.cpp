@@ -76,8 +76,9 @@ int main(int argc, char** argv) {
         grafo_matriz::MenorMaior mm = dynamic_cast<grafo_matriz*>(g)->menor_maior_distancia();
         cout << "Maior menor distância: (" << mm.no1 << "-" << mm.no2 << ") " << mm.distancia << endl;
     } else if (flagTipo == "-l") {  
-        cout << "Maior menor distância: " << endl;
-    }
+    grafo_lista::MenorMaior mm = dynamic_cast<grafo_lista*>(g)->menor_maior_distancia();
+    cout << "Maior menor distância: (" << mm.no1 << "-" << mm.no2 << ") " << mm.distancia << endl;
+}
 
     delete g;
     return 0;
