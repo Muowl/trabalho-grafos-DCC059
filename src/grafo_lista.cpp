@@ -172,43 +172,41 @@ void grafo_lista::deleta_aresta(int origem, int destino) {
 }
 
 grafo_lista::MenorMaior grafo_lista::menor_maior_distancia() const {
-    const float INF = 1e9f;
-    int n = ordem; // número de vértices
+    const float INF = 1e9f; // Valor para representar distâncias infinitas
+    int n = ordem; // Número de vértices
 
-    // Aloca e inicializa matriz de distâncias.
+    // Aloca e inicializa matriz de distâncias
     float** dist = new float*[n];
     for (int i = 0; i < n; i++) {
         dist[i] = new float[n];
         for (int j = 0; j < n; j++) {
-            dist[i][j] = (i == j) ? 0.0f : INF;
+            dist[i][j] = (i == j) ? 0.0f : INF; // Distância de um nó para ele mesmo é 0
         }
     }
 
-    // Percorre todas as arestas para inicializar as distâncias diretas.
-    // As arestas já foram criadas com os índices corretos (0-based)
+    // Inicializa as distâncias diretas com base nas arestas
     for (auto it = arestas.begin(); it != arestas.end(); ++it) {
-        int u = it->origem;
+        int u = it->origem; // IDs já são 0-based
         int v = it->destino;
         float peso = it->peso;
-        // Se houver múltiplas arestas entre os mesmos nós, escolhe o de menor peso.
-        if (peso < dist[u][v]) {
+        if (peso < dist[u][v]) { // Se houver múltiplas arestas, escolhe a de menor peso
             dist[u][v] = peso;
         }
     }
 
-    // Aplica o algoritmo de Floyd–Warshall.
+    // Algoritmo de Floyd-Warshall para calcular as distâncias mínimas
     for (int k = 0; k < n; k++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 float novo = dist[i][k] + dist[k][j];
                 if (novo < dist[i][j]) {
-                    dist[i][j] = novo;
+                    dist[i][j] = novo; // Atualiza a distância mínima
                 }
             }
         }
     }
 
-    // Procura o par de nós com a maior distância mínima, ignorando INF.
+    // Encontra o par de nós com a maior distância mínima
     int no1 = -1, no2 = -1;
     float maxDist = -1.0f;
     for (int i = 0; i < n; i++) {
@@ -221,15 +219,16 @@ grafo_lista::MenorMaior grafo_lista::menor_maior_distancia() const {
         }
     }
 
-    // Libera a memória utilizada pela matriz.
+    // Libera a memória da matriz de distâncias
     for (int i = 0; i < n; i++) {
         delete[] dist[i];
     }
     delete[] dist;
 
+    // Retorna o resultado convertendo IDs para 1-based
     MenorMaior ret;
-    ret.no1 = no1 + 1; // converter para 1-based
-    ret.no2 = no2 + 1; // converter para 1-based
+    ret.no1 = no1 + 1;
+    ret.no2 = no2 + 1;
     ret.distancia = maxDist;
     return ret;
 }
