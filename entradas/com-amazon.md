@@ -8,7 +8,7 @@ ID_Usuário1   ID_Usuário2   ID_Usuário3   ...
 ```
 
 - **Descrição:**
-Cada linha representa uma comunidade distinta na rede Amazon. Os valores em cada linha são os IDs dos nós (usuários ou produtos) que pertencem a essa comunidade. Diferentemente de outros arquivos como o do Orkut, não há um identificador explícito para a comunidade no início da linha; cada linha é implicitamente uma comunidade diferente, e os números listados são os membros dessa comunidade.
+Cada linha representa uma comunidade distinta na rede Amazon. Os valores em cada linha são os IDs dos nós (usuários ou produtos) que pertencem a essa comunidade. Diferentemente de outros arquivos, como o do Orkut, não há um identificador explícito para a comunidade no início da linha; cada linha é implicitamente uma comunidade diferente, e os números listados são os membros dessa comunidade.
 
 **Exemplo do arquivo:**
 ```
