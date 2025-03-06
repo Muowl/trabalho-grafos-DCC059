@@ -49,4 +49,3 @@ Uma Árvore Geradora Mínima Generalizada (AGMG) é uma estrutura de grafo que c
 - **Planejamento de expansão:** Auxiliar no planejamento de novas estradas para garantir a conectividade mínima necessária.
 
 Para gerar uma AGMG a partir do grafo rodoviário da Califórnia, algoritmos como Prim ou Kruskal podem ser aplicados, considerando as estradas como arestas ponderadas com base em critérios como distância ou tempo de viagem.
-```
