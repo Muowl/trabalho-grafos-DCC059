@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cmath> // para std::abs
 #include "leitura.h"
 
 class grafo {
@@ -15,16 +16,23 @@ public:
               matriz_info(nullptr), total_lin(0) {}
     virtual ~grafo() {}
 
+    // Nova função para calcular o peso da aresta como abs(from - to)
+    int calcular_peso_aresta(int from, int to) const {
+        return std::abs(from - to);
+    }
+
     // Funções implementadas na classe abstrata:
     virtual int n_conexo() const {
         // implementação básica (a ser refinada conforme a estrutura)
         // Exemplo: retornar 1 se o grafo for conexo
         return 1;
     }
+    
     virtual int get_grau() const {
         // A implementação concreta precisa utilizar os métodos de acesso, que são definidos nas classes filhas
         return 0;
     }
+    
     int get_ordem() const { return ordem; }
     bool eh_direcionado() const { return direcionado; }
     bool vertice_ponderado() const { return verticesPonderados; }
@@ -64,5 +72,14 @@ public:
         leitura l(filename);
         // A partir daqui, a classe derivada deve processar os dados lidos para preencher as estruturas internas
         return true;
+    }
+    
+    // Função auxiliar para calcular o peso de todas as arestas e preencher uma matriz de pesos
+    void calcular_pesos_arestas(float **matriz_pesos, int num_arestas) {
+        for (int i = 0; i < num_arestas; i++) {
+            int from = static_cast<int>(matriz_info[i][0]);
+            int to = static_cast<int>(matriz_info[i][1]);
+            matriz_pesos[from][to] = static_cast<float>(calcular_peso_aresta(from, to));
+        }
     }
 };
