@@ -12,9 +12,12 @@ protected:
     float **matriz_info;
     int total_lin;
 public:
+    // Inicializa os atributos com valores padrão
     grafo() : ordem(0), direcionado(false), verticesPonderados(false), arestasPonderadas(false),
               matriz_info(nullptr), total_lin(0) {}
-    virtual ~grafo() {}
+    virtual ~grafo() {
+        // Não liberamos matriz_info aqui, pois é gerenciada pela classe leitura
+    }
 
     // Nova função para calcular o peso da aresta como abs(from - to)
     int calcular_peso_aresta(int from, int to) const {
@@ -24,12 +27,11 @@ public:
     // Funções implementadas na classe abstrata:
     virtual int n_conexo() const {
         // implementação básica (a ser refinada conforme a estrutura)
-        // Exemplo: retornar 1 se o grafo for conexo
         return 1;
     }
     
     virtual int get_grau() const {
-        // A implementação concreta precisa utilizar os métodos de acesso, que são definidos nas classes filhas
+        // A implementação concreta precisa utilizar os métodos de acesso específicos
         return 0;
     }
     
@@ -38,8 +40,11 @@ public:
     bool vertice_ponderado() const { return verticesPonderados; }
     bool aresta_ponderada() const { return arestasPonderadas; }
 
-    // Implementação de get_grau_no utilizando a matriz carregada em leitura.h
+    // Implementação de get_grau_no utilizando a matriz_info
     int get_grau_no(int id) const {
+        if (matriz_info == nullptr || total_lin == 0)
+            return 0;
+            
         int degree = 0;
         // Para cada linha (aresta) da matriz
         for (int i = 0; i < total_lin; i++) {
@@ -68,18 +73,22 @@ public:
     }
 
     virtual bool carrega_grafo(const std::string &filename) {
-        // Usa a classe leitura para carregar os dados do arquivo e inicializar os atributos
-        leitura l(filename);
-        // A partir daqui, a classe derivada deve processar os dados lidos para preencher as estruturas internas
+        // Implementação base que deve ser sobrescrita pelas classes derivadas
         return true;
     }
     
     // Função auxiliar para calcular o peso de todas as arestas e preencher uma matriz de pesos
     void calcular_pesos_arestas(float **matriz_pesos, int num_arestas) {
+        if (matriz_info == nullptr)
+            return;
+            
         for (int i = 0; i < num_arestas; i++) {
             int from = static_cast<int>(matriz_info[i][0]);
             int to = static_cast<int>(matriz_info[i][1]);
-            matriz_pesos[from][to] = static_cast<float>(calcular_peso_aresta(from, to));
+            // Verificar se from e to estão dentro dos limites válidos
+            if (from >= 0 && from < ordem && to >= 0 && to < ordem) {
+                matriz_pesos[from][to] = static_cast<float>(calcular_peso_aresta(from, to));
+            }
         }
     }
 };
