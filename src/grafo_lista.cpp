@@ -1,5 +1,4 @@
 #include "../include/grafo_lista.h"
-#include "grafo_lista.h"
 #include "../include/leitura.h"
 #include <iostream>
 
@@ -10,15 +9,13 @@ bool grafo_lista::carrega_grafo(const std::string &filename) {
     direcionado = l.get_direcionado();
     verticesPonderados = l.get_ponderado_vertices();
     arestasPonderadas = l.get_ponderado_arestas();
-
+    
     int numNos = l.get_num_nos();
-    // Adicionado: atualiza a ordem do grafo com o número de nós lidos
-    ordem = numNos;
+    // Atribuição já foi feita acima: ordem = numNos;
     
     bool ponderadoVertices = l.get_ponderado_vertices();
     
-    // Cria nós com id de 0 a numNos-1.
-    // como a classe leitura não expõe os pesos, usa-se 0 como peso padrão
+    // Cria nós com id de 0 a numNos-1 (formato 0-based)
     for (int i = 0; i < numNos; i++) {
         no novoNo(i, (ponderadoVertices ? 0 : 0));
         vertices.push_back(novoNo);
@@ -26,16 +23,22 @@ bool grafo_lista::carrega_grafo(const std::string &filename) {
 
     int totalArestas = l.get_total_lin();
     float **matriz = l.get_matriz_info();
+    this->total_lin = totalArestas;
+    this->matriz_info = matriz;
 
     for (int i = 0; i < totalArestas; i++) {
-        int origem  = static_cast<int>(matriz[i][0]) - 1; // Converte para 0-based
-        int destino = static_cast<int>(matriz[i][1]) - 1;
-        float peso  = matriz[i][2];
-        aresta novaAresta(origem, destino, peso);
-        arestas.push_back(novaAresta);
+        // Os IDs no arquivo já são 0-based, não precisa subtrair 1
+        int origem = static_cast<int>(matriz[i][0]);
+        int destino = static_cast<int>(matriz[i][1]);
+        float peso = matriz[i][2];
+        
+        // Verificar se os IDs estão dentro do intervalo válido
+        if (origem >= 0 && origem < numNos && destino >= 0 && destino < numNos) {
+            aresta novaAresta(origem, destino, peso);
+            arestas.push_back(novaAresta);
+        }
     }
     
-    // Retorna true se o grafo foi carregado com sucesso
     return true;
 }
 
@@ -56,15 +59,14 @@ int grafo_lista::n_conexo() const {
     };
 
     for (auto it = arestas.begin(); it != arestas.end(); ++it) {
-        // Ajuste para índices 0-based (se necessário)
-        int u = it->origem - 1; // Subtrai 1 se os vértices são 1-based
-        int v = it->destino - 1;
+        // Os IDs já são 0-based, não precisa ajustar
+        int u = it->origem;
+        int v = it->destino;
 
         // Verifica se u e v são índices válidos
         if (u < 0 || u >= n || v < 0 || v >= n) {
-            // Tratar erro: vértice inválido na aresta
-            delete[] parent;
-            throw std::runtime_error("Vértice inválido na aresta");
+            // Pular esta aresta inválida
+            continue;
         }
 
         int pu = find(u);
@@ -225,10 +227,10 @@ grafo_lista::MenorMaior grafo_lista::menor_maior_distancia() const {
     }
     delete[] dist;
 
-    // Retorna o resultado convertendo IDs para 1-based
+    // Retorna o resultado mantendo IDs 0-based
     MenorMaior ret;
-    ret.no1 = no1 + 1;
-    ret.no2 = no2 + 1;
+    ret.no1 = no1;  // Sem converter para 1-based
+    ret.no2 = no2;
     ret.distancia = maxDist;
     return ret;
 }
