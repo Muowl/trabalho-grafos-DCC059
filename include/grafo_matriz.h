@@ -46,8 +46,6 @@ public:
         ordem = 0;
         capacidade = 10;
         direcionado = false;
-        verticesPonderados = false;
-        arestasPonderadas = false;
         
         nos = new no[capacidade];
         

@@ -180,9 +180,6 @@ bool grafo_matriz::carrega_grafo(const std::string &filename) {
 
     // Inicializa os atributos do grafo
     this->ordem = l.get_num_nos();
-    this->direcionado = l.get_direcionado();
-    this->verticesPonderados = l.get_ponderado_vertices();
-    this->arestasPonderadas = l.get_ponderado_arestas();
 
     // Inicializa os nós
     for (int i = 0; i < ordem; i++) {
