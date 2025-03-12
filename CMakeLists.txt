@@ -18,6 +18,7 @@ set(SOURCES
     src/leitura.cpp
     src/grafo_lista.cpp
     src/grafo_matriz.cpp
+    src/grafo.cpp
 )
 
 # Criar executável

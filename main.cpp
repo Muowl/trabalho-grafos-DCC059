@@ -1,6 +1,5 @@
 #include "leitura.h"
 #include "grafo_lista.h"
-#include "grafo_matriz.h"
 #include "no.h"
 #include "aresta.h"
 #include <iostream>
@@ -9,77 +8,69 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    // Verifica argumentos: espera-se "main.out -d -m|-l grafo.txt"
-    if (argc != 4) {
-        cout << "Uso: " << argv[0] << " -d -m|-l grafo.txt" << endl;
-        return 1;
+    string arquivo = "../entradas/grafo.txt";
+    
+    cout << "Inicializando grafo a partir do arquivo: " << arquivo << endl;
+    
+    // Criar grafo usando listas de adjacência
+    leitura leitor(arquivo);
+    
+    int numNos = leitor.get_num_nos();
+    cout << "Número de nós total: " << numNos << endl;
+    
+    // Obter arestas lidas do arquivo
+    const Vetor<std::pair<int, int>>& arestas = leitor.get_arestas();
+    cout << "Número de arestas total: " << arestas.size() << endl;
+    
+    // Exibir as conexões do nó 0 diretamente das arestas lidas
+    cout << "\nConexões do nó 0 (do arquivo):" << endl;
+    cout << "0 -> ";
+    bool temAdjacente = false;
+    
+    for (int i = 0; i < arestas.size(); i++) {
+        if (arestas[i].first == 0) {
+            cout << arestas[i].second << " ";
+            temAdjacente = true;
+        }
     }
     
-    string flagDirecionado = argv[1];
-    string flagTipo = argv[2];
-    string filename = argv[3];
-
-    // Verificação do flag -d (pode ser usado para futuras opções)
-    if (flagDirecionado != "-d") {
-        cout << "Opção inválida. Use -d para indicar execução." << endl;
-        return 1;
+    if (!temAdjacente) {
+        cout << "(nenhum adjacente)";
     }
-
-    // Variável base para a interface comum do grafo
-    grafo* g = nullptr;
+    cout << endl;
     
-    if (flagTipo == "-m") {
-        // Carregamento via matriz de adjacência
-        g = new grafo_matriz();
-    } else if (flagTipo == "-l") {
-        // Carregamento via lista encadeada
-        g = new grafo_lista();
-    } else {
-        cout << "Opção inválida: use -m (matriz) ou -l (lista)" << endl;
-        return 1;
+    // Teste usando o grafo de lista de adjacências
+    cout << "\nTeste usando a implementação do grafo com lista de adjacências:" << endl;
+    
+    // Criando grafo com todos os nós
+    GrafoLista grafo(numNos, true); // Grafo direcionado
+    
+    // Adicionar apenas as arestas que saem do nó 0 para economizar memória
+    int arestasAdicionadas = 0;
+    for (int i = 0; i < arestas.size(); i++) {
+        if (arestas[i].first == 0) {
+            grafo.adicionarAresta(arestas[i].first, arestas[i].second);
+            arestasAdicionadas++;
+        }
     }
     
-    // Carrega o grafo a partir do arquivo
-    if (!g->carrega_grafo(filename)) {
-        cout << "Erro ao carregar o arquivo " << filename << endl;
-        delete g;
-        return 1;
+    cout << "Arestas adicionadas ao grafo (partindo do nó 0): " << arestasAdicionadas << endl;
+    
+    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta
+    cout << "Nó 0 -> ";
+    temAdjacente = false;
+    
+    for (int j = 0; j < numNos; j++) {
+        if (grafo.existeAresta(0, j)) {
+            cout << j << " ";
+            temAdjacente = true;
+        }
     }
-
-    if(flagTipo == "-m") {
-        cout << filename << endl;
-        cout << "Excluindo nó 1..." << endl;
-        dynamic_cast<grafo_matriz*>(g)->deleta_no(1);
-
-        cout << "Excluindo primeira aresta do nó 2..." << endl;
-        dynamic_cast<grafo_matriz*>(g)->deleta_aresta(2, 0);
-
-    } else if(flagTipo == "-l") {
-        cout << filename << endl;
-        cout << "Excluindo nó 1..." << endl;
-
-        dynamic_cast<grafo_lista*>(g)->deleta_no(1 - 1);
-
-        cout << "Excluindo primeira aresta do nó 2..." << endl;
-        dynamic_cast<grafo_lista*>(g)->deleta_aresta(2 - 1, 0);
+    
+    if (!temAdjacente) {
+        cout << "(nenhum adjacente)";
     }
-
-    // Imprime as informações do grafo
-    cout << "Grau: " << g->get_grau() << endl;
-    cout << "Ordem: " << g->get_ordem() << endl;
-    cout << "Direcionado: " << (g->eh_direcionado() ? "Sim" : "Não") << endl;
-    cout << "Vertices ponderados: " << (g->vertice_ponderado() ? "Sim" : "Não") << endl;
-    cout << "Arestas ponderadas: " << (g->aresta_ponderada() ? "Sim" : "Não") << endl;
-    cout << "Completo: " << (g->eh_completo() ? "Sim" : "Não") << endl;
-
-    if (flagTipo == "-m") {
-        grafo_matriz::MenorMaior mm = dynamic_cast<grafo_matriz*>(g)->menor_maior_distancia();
-        cout << "Maior menor distância: (" << mm.no1 << "-" << mm.no2 << ") " << mm.distancia << endl;
-    } else if (flagTipo == "-l") {  
-    grafo_lista::MenorMaior mm = dynamic_cast<grafo_lista*>(g)->menor_maior_distancia();
-    cout << "Maior menor distância: (" << mm.no1 << "-" << mm.no2 << ") " << mm.distancia << endl;
-}
-
-    delete g;
+    cout << endl;
+    
     return 0;
 }

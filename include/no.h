@@ -1,10 +1,18 @@
 #pragma once
+#include <string>
 
-class no {
-public:
+class No {
+private:
     int id;
-    float peso;
+    std::string info;
 
-    no() : id(-1), peso(0.0f) {}  // Construtor padrão para grafo_matriz
-    no(int id, float peso) : id(id), peso(peso) {}
+public:
+    No(int id = -1, const std::string& info = "")
+        : id(id), info(info) {}
+
+    int getId() const { return id; }
+    std::string getInfo() const { return info; }
+    
+    void setId(int i) { id = i; }
+    void setInfo(const std::string& i) { info = i; }
 };

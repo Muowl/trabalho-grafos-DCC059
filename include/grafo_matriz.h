@@ -1,4 +1,4 @@
-#ifndef GRAFO_MATRIZ_H
+/* #ifndef GRAFO_MATRIZ_H
 #define GRAFO_MATRIZ_H
 
 #include "grafo.h"
@@ -93,4 +93,4 @@ public:
     MenorMaior menor_maior_distancia() const;
 };
 
-#endif // GRAFO_MATRIZ_H
+#endif // GRAFO_MATRIZ_H */
