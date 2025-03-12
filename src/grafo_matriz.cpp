@@ -8,9 +8,9 @@ GrafoMatriz::GrafoMatriz(int n, bool dir, bool pond, const std::string& nome)
     num_vertices = n;
     capacidade = n > 0 ? n : 10;
     
-    nos = new no[capacidade];
+    nos = new No[capacidade];
     for (int i = 0; i < n; i++) {
-        nos[i] = no(i, 0.0f);
+        nos[i] = No(i, std::to_string(0.0f));
     }
     
     matriz_adj = new float*[capacidade];
@@ -52,14 +52,12 @@ void GrafoMatriz::removerAresta(int v1, int v2) {
 bool GrafoMatriz::existeAresta(int v1, int v2) const {
     if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
         return false;
-        
     return matriz_adj[v1][v2] != 0;
 }
 
 float GrafoMatriz::getPesoAresta(int v1, int v2) const {
     if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
         return 0;
-        
     return matriz_adj[v1][v2];
 }
 
@@ -70,14 +68,12 @@ void GrafoMatriz::imprimirGrafo() const {
     std::cout << "Ponderado: " << (ponderado ? "Sim" : "Não") << std::endl;
     std::cout << "Matriz de adjacência:" << std::endl;
     
-    // Cabeçalho
     std::cout << "   ";
     for (int i = 0; i < num_vertices; i++) {
         std::cout << std::setw(4) << i;
     }
     std::cout << std::endl;
     
-    // Matriz
     for (int i = 0; i < num_vertices; i++) {
         std::cout << std::setw(3) << i;
         for (int j = 0; j < num_vertices; j++) {
@@ -93,40 +89,38 @@ void GrafoMatriz::imprimirGrafo() const {
 
 bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     leitura l(arquivo);
+    if (!l.ler_arquivo_grafo(arquivo))
+        return false;
     
+    // Atualiza o número de vértices a partir da leitura
     num_vertices = l.get_num_nos();
-    direcionado = l.get_direcionado();
-    ponderado = l.get_ponderado_arestas();
-    
-    // Garantir capacidade suficiente
+    // Se a capacidade for menor, redimensionar
     if (capacidade < num_vertices) {
         redimensionar_matriz(num_vertices);
     }
-
-    // Inicializa os nós
+    
+    // Inicializa nós (para este exemplo, atribuímos peso 0)
     for (int i = 0; i < num_vertices; i++) {
-        float peso = l.get_ponderado_vertices() ? l.get_pesos_nos()[i] : 0;
-        nos[i] = no(i, peso);
+        nos[i] = No(i, std::to_string(0.0f));
     }
-
-    // Inicializa a matriz de adjacência
+    
+    // Zera a matriz de adjacência
     for (int i = 0; i < num_vertices; i++) {
         for (int j = 0; j < num_vertices; j++) {
             matriz_adj[i][j] = 0;
         }
     }
-
-    // Preenche a matriz de adjacência com as arestas
-    int totalArestas = l.get_total_lin();
-    float** matriz = l.get_matriz_info();
-
-    for (int i = 0; i < totalArestas; i++) {
-        int origem = static_cast<int>(matriz[i][0]) - 1;  // Converter para 0-based
-        int destino = static_cast<int>(matriz[i][1]) - 1; // Converter para 0-based
-        float peso = l.get_ponderado_arestas() ? matriz[i][2] : 1.0f;
-        
-        adicionarAresta(origem, destino, peso);
+    
+    // Preenche as arestas usando os pesos sintéticos obtidos
+    const auto& edges = l.get_arestas_com_peso();
+    for (size_t i = 0; i < edges.size(); i++) {
+        // Ajusta para 0-based, se os IDs no arquivo estiverem em 1-based
+        int origem = edges[i].origem - 1;
+        int destino = edges[i].destino - 1;
+        float peso = edges[i].peso;
+        if (origem >= 0 && origem < num_vertices && destino >= 0 && destino < num_vertices)
+            adicionarAresta(origem, destino, peso);
     }
-
+    
     return true;
 }

@@ -8,7 +8,7 @@
 class GrafoMatriz : public Grafo {
 private:
     float** matriz_adj;
-    no* nos;
+    No* nos;
     int capacidade;
 
     void redimensionar_matriz(int nova_capacidade) {

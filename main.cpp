@@ -1,5 +1,6 @@
 #include "leitura.h"
 #include "grafo_lista.h"
+#include "grafo_matriz.h"
 #include "no.h"
 #include "aresta.h"
 #include <iostream>
@@ -48,7 +49,7 @@ int main(int argc, char** argv) {
     cout << "\nTeste usando a implementação do grafo ponderado com lista de adjacências:" << endl;
     
     // Criando grafo com todos os nós - agora ponderado
-    GrafoLista grafo(numNos, true, true, "Grafo AGMG"); // Direcionado e ponderado
+    GrafoLista grafo(numNos, true, true, "Grafo AGMG - Lista"); // Direcionado e ponderado
     
     // Adicionar apenas as arestas que saem do nó 0 para economizar memória, com seus pesos
     int arestasAdicionadas = 0;
@@ -72,6 +73,44 @@ int main(int argc, char** argv) {
     for (int j = 0; j < numNos; j++) {
         if (grafo.existeAresta(0, j)) {
             float peso = grafo.getPesoAresta(0, j);
+            cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
+            temAdjacente = true;
+        }
+    }
+    
+    if (!temAdjacente) {
+        cout << "(nenhum adjacente)";
+    }
+    cout << endl;
+    
+    // NOVO TESTE: Usando o grafo de matriz de adjacências ponderado
+    cout << "\nTeste usando a implementação do grafo ponderado com matriz de adjacências:" << endl;
+    
+    // Criando grafo com todos os nós - agora ponderado
+    GrafoMatriz grafoMatriz(numNos, true, true, "Grafo AGMG - Matriz"); // Direcionado e ponderado
+    
+    // Adicionar apenas as arestas que saem do nó 0 para economizar memória, com seus pesos
+    arestasAdicionadas = 0;
+    for (int i = 0; i < arestas_com_peso.size(); i++) {
+        if (arestas_com_peso[i].origem == 0) {
+            grafoMatriz.adicionarAresta(
+                arestas_com_peso[i].origem, 
+                arestas_com_peso[i].destino, 
+                arestas_com_peso[i].peso
+            );
+            arestasAdicionadas++;
+        }
+    }
+    
+    cout << "Arestas adicionadas ao grafo (partindo do nó 0): " << arestasAdicionadas << endl;
+    
+    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta e getPesoAresta
+    cout << "Nó 0 -> ";
+    temAdjacente = false;
+    
+    for (int j = 0; j < numNos; j++) {
+        if (grafoMatriz.existeAresta(0, j)) {
+            float peso = grafoMatriz.getPesoAresta(0, j);
             cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
             temAdjacente = true;
         }
