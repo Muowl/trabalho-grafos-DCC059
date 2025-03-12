@@ -13,17 +13,17 @@ private:
 
     void redimensionar_matriz(int nova_capacidade) {
         float** nova_matriz = new float*[nova_capacidade];
-        for (int i = 0; i < nova_capacidade; ++i) {
+        for (int i = 0; i < nova_capacidade; i++) {
             nova_matriz[i] = new float[nova_capacidade]();
         }
 
-        for (int i = 0; i < num_vertices; ++i) {
-            for (int j = 0; j < num_vertices; ++j) {
+        for (int i = 0; i < num_vertices; i++) {
+            for (int j = 0; j < num_vertices; j++) {
                 nova_matriz[i][j] = matriz_adj[i][j];
             }
         }
 
-        for (int i = 0; i < capacidade; ++i) {
+        for (int i = 0; i < capacidade; i++) {
             delete[] matriz_adj[i];
         }
         delete[] matriz_adj;
