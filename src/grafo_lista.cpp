@@ -1,6 +1,7 @@
 #include "../include/grafo_lista.h"
 #include "../include/leitura.h"
 #include <iostream>
+#include <iomanip>
 
 GrafoLista::GrafoLista(int n, bool dir, bool pond, const std::string& nome)
     : Grafo(n, dir, pond, nome) {
@@ -71,7 +72,7 @@ void GrafoLista::imprimirGrafo() const {
         for (const auto& aresta : adjacencias[i]) {
             std::cout << aresta.getDestino();
             if (ponderado)
-                std::cout << "(" << aresta.getPeso() << ")";
+                std::cout << "(" << std::fixed << std::setprecision(1) << aresta.getPeso() << ")";
             std::cout << " ";
         }
         std::cout << std::endl;
@@ -81,12 +82,12 @@ void GrafoLista::imprimirGrafo() const {
 void GrafoLista::carregarDoArquivo(const std::string& arquivo) {
     leitura leitor(arquivo);
     
-    // Obter arestas lidas do arquivo
-    const Vetor<std::pair<int, int>>& arestas = leitor.get_arestas();
+    // Usar arestas com peso para o grafo AGMG
+    const Vetor<EdgeData>& arestas = leitor.get_arestas_com_peso();
     
-    // Adicionar cada aresta ao grafo
+    // Adicionar cada aresta ao grafo com seu peso
     for (int i = 0; i < arestas.size(); i++) {
-        adicionarAresta(arestas[i].first, arestas[i].second);
+        adicionarAresta(arestas[i].origem, arestas[i].destino, arestas[i].peso);
     }
 }
 

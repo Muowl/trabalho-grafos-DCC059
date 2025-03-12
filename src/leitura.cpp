@@ -2,16 +2,18 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <cmath>
 #include "../include/leitura.h"
 
 leitura::leitura(const std::string &filename) : num_nos(0)
 {
     ler_arquivo_grafo(filename);
+    gerar_pesos_sinteticos();
 }
 
 leitura::~leitura()
 {
-
+    // Nothing to clean up
 }
 
 bool leitura::ler_arquivo_grafo(const std::string &filename)
@@ -47,4 +49,20 @@ bool leitura::ler_arquivo_grafo(const std::string &filename)
 
     arquivo.close();
     return true;
+}
+
+void leitura::gerar_pesos_sinteticos() {
+    // Gerar pesos como o valor absoluto da diferença entre os IDs dos nós
+    for (int i = 0; i < arestas.size(); i++) {
+        int origem = arestas[i].first;
+        int destino = arestas[i].second;
+        float peso = std::abs(destino - origem);
+        
+        // Para evitar peso zero em self-loops
+        if (peso == 0) peso = 1.0f;
+        
+        arestas_com_peso.push_back(EdgeData(origem, destino, peso));
+    }
+    
+    std::cout << "Pesos sintéticos gerados para " << arestas_com_peso.size() << " arestas." << std::endl;
 }

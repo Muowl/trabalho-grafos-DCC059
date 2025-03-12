@@ -4,6 +4,7 @@
 #include "aresta.h"
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -22,14 +23,18 @@ int main(int argc, char** argv) {
     const Vetor<std::pair<int, int>>& arestas = leitor.get_arestas();
     cout << "Número de arestas total: " << arestas.size() << endl;
     
-    // Exibir as conexões do nó 0 diretamente das arestas lidas
-    cout << "\nConexões do nó 0 (do arquivo):" << endl;
+    // Exibir as conexões do nó 0 com pesos sintéticos
+    cout << "\nConexões do nó 0 com pesos sintéticos (do arquivo):" << endl;
     cout << "0 -> ";
     bool temAdjacente = false;
     
-    for (int i = 0; i < arestas.size(); i++) {
-        if (arestas[i].first == 0) {
-            cout << arestas[i].second << " ";
+    // Obter arestas com pesos
+    const Vetor<EdgeData>& arestas_com_peso = leitor.get_arestas_com_peso();
+    
+    for (int i = 0; i < arestas_com_peso.size(); i++) {
+        if (arestas_com_peso[i].origem == 0) {
+            cout << arestas_com_peso[i].destino << "(peso:" 
+                 << fixed << setprecision(1) << arestas_com_peso[i].peso << ") ";
             temAdjacente = true;
         }
     }
@@ -39,30 +44,35 @@ int main(int argc, char** argv) {
     }
     cout << endl;
     
-    // Teste usando o grafo de lista de adjacências
-    cout << "\nTeste usando a implementação do grafo com lista de adjacências:" << endl;
+    // Teste usando o grafo de lista de adjacências ponderado
+    cout << "\nTeste usando a implementação do grafo ponderado com lista de adjacências:" << endl;
     
-    // Criando grafo com todos os nós
-    GrafoLista grafo(numNos, true); // Grafo direcionado
+    // Criando grafo com todos os nós - agora ponderado
+    GrafoLista grafo(numNos, true, true, "Grafo AGMG"); // Direcionado e ponderado
     
-    // Adicionar apenas as arestas que saem do nó 0 para economizar memória
+    // Adicionar apenas as arestas que saem do nó 0 para economizar memória, com seus pesos
     int arestasAdicionadas = 0;
-    for (int i = 0; i < arestas.size(); i++) {
-        if (arestas[i].first == 0) {
-            grafo.adicionarAresta(arestas[i].first, arestas[i].second);
+    for (int i = 0; i < arestas_com_peso.size(); i++) {
+        if (arestas_com_peso[i].origem == 0) {
+            grafo.adicionarAresta(
+                arestas_com_peso[i].origem, 
+                arestas_com_peso[i].destino, 
+                arestas_com_peso[i].peso
+            );
             arestasAdicionadas++;
         }
     }
     
     cout << "Arestas adicionadas ao grafo (partindo do nó 0): " << arestasAdicionadas << endl;
     
-    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta
+    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta e getPesoAresta
     cout << "Nó 0 -> ";
     temAdjacente = false;
     
     for (int j = 0; j < numNos; j++) {
         if (grafo.existeAresta(0, j)) {
-            cout << j << " ";
+            float peso = grafo.getPesoAresta(0, j);
+            cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
             temAdjacente = true;
         }
     }
