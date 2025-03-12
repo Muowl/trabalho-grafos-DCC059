@@ -1,335 +1,132 @@
-/* #include "../include/grafo_matriz.h"
+#include "../include/grafo_matriz.h"
 #include "../include/leitura.h"
+#include <iostream>
+#include <iomanip>
 
-no *grafo_matriz::get_no(int id)
-{
-    if (id >= 0 && id < ordem)
-    {
-        return &nos[id];
+GrafoMatriz::GrafoMatriz(int n, bool dir, bool pond, const std::string& nome)
+    : Grafo(n, dir, pond, nome) {
+    num_vertices = n;
+    capacidade = n > 0 ? n : 10;
+    
+    nos = new no[capacidade];
+    for (int i = 0; i < n; i++) {
+        nos[i] = no(i, 0.0f);
     }
-    return nullptr;
-}
-
-aresta *grafo_matriz::get_aresta(int origem, int destino)
-{
-    if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem)
-    {
-        if (matriz_adj[origem][destino] != 0)
-        {
-            return new aresta(origem, destino, matriz_adj[origem][destino]);
-        }
-    }
-    return nullptr;
-}
-
-void grafo_matriz::add_no(float peso)
-{
-    if (ordem >= capacidade)
-    {
-        redimensionar_matriz(capacidade * 2);
-    }
-    nos[ordem] = no(ordem, peso);
-    ordem++;
-}
-
-void grafo_matriz::add_aresta(int origem, int destino, float peso)
-{
-    // Ajuste: converter para índice 0-based
-    origem--;  // Converter de 1-based para 0-based
-    destino--; // Converter de 1-based para 0-based
-
-    if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem)
-    {
-        matriz_adj[origem][destino] = peso;
-        if (!direcionado)
-        {
-            matriz_adj[destino][origem] = peso;
-        }
+    
+    matriz_adj = new float*[capacidade];
+    for (int i = 0; i < capacidade; i++) {
+        matriz_adj[i] = new float[capacidade]();
     }
 }
 
-aresta **grafo_matriz::get_vizinhos(int id)
-{
-    if (id >= 0 && id < ordem)
-    {
-        aresta **vizinhos = new aresta *[ordem];
-        int count = 0;
-        for (int i = 0; i < ordem; i++)
-        {
-            if (matriz_adj[id][i] != 0)
-            {
-                vizinhos[count++] = new aresta(id, i, matriz_adj[id][i]);
-            }
+GrafoMatriz::~GrafoMatriz() {
+    if (matriz_adj != nullptr) {
+        for (int i = 0; i < capacidade; i++) {
+            delete[] matriz_adj[i];
         }
-        return vizinhos;
+        delete[] matriz_adj;
     }
-    return nullptr;
+    delete[] nos;
 }
 
-void grafo_matriz::remove_no(int id)
-{
-    if (id >= 0 && id < ordem)
-    {
-        for (int i = 0; i < ordem; i++)
-        {
-            matriz_adj[id][i] = 0;
-            matriz_adj[i][id] = 0;
-        }
-        for (int i = id; i < ordem - 1; i++)
-        {
-            nos[i] = nos[i + 1];
-            for (int j = 0; j < ordem; j++)
-            {
-                matriz_adj[i][j] = matriz_adj[i + 1][j];
-                matriz_adj[j][i] = matriz_adj[j][i + 1];
-            }
-        }
-        ordem--;
+void GrafoMatriz::adicionarAresta(int v1, int v2, float peso) {
+    if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
+        return;
+
+    matriz_adj[v1][v2] = peso;
+    if (!direcionado && v1 != v2) {
+        matriz_adj[v2][v1] = peso;
     }
 }
 
-void grafo_matriz::novo_no(float peso)
-{
-    add_no(peso);
-}
+void GrafoMatriz::removerAresta(int v1, int v2) {
+    if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
+        return;
 
-void grafo_matriz::nova_aresta(int origem, int destino, float peso)
-{
-    add_aresta(origem, destino, peso);
-}
-
-void grafo_matriz::deleta_no(int id)
-{
-    // Converter de 1-based para 0-based
-    id--;
-
-    if (id >= 0 && id < ordem)
-    {
-        // Remover todas as arestas associadas ao nó
-        for (int i = 0; i < ordem; i++)
-        {
-            matriz_adj[id][i] = 0;
-            matriz_adj[i][id] = 0;
-        }
-
-        // Remover o nó e ajustar a matriz de adjacência
-        for (int i = id; i < ordem - 1; i++)
-        {
-            nos[i] = nos[i + 1];
-            for (int j = 0; j < ordem; j++)
-            {
-                matriz_adj[i][j] = matriz_adj[i + 1][j];
-                matriz_adj[j][i] = matriz_adj[j][i + 1];
-            }
-        }
-
-        // Atualizar a ordem do grafo
-        ordem--;
-
-        // Recalcular IDs dos nós restantes
-        for (int i = 0; i < ordem; i++)
-        {
-            nos[i].id = i;
-        }
+    matriz_adj[v1][v2] = 0;
+    if (!direcionado) {
+        matriz_adj[v2][v1] = 0;
     }
 }
 
-void grafo_matriz::deleta_aresta(int origem, int destino)
-{
-    // Converter de 1-based para 0-based
-    origem--;
-    destino--;
-
-    if (origem >= 0 && origem < ordem && destino >= 0 && destino < ordem)
-    {
-        matriz_adj[origem][destino] = 0;
-        if (!direcionado)
-        {
-            matriz_adj[destino][origem] = 0;
-        }
-    }
+bool GrafoMatriz::existeAresta(int v1, int v2) const {
+    if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
+        return false;
+        
+    return matriz_adj[v1][v2] != 0;
 }
 
-int grafo_matriz::n_conexo() const
-{
-    int n = ordem;
-    if (n == 0)
+float GrafoMatriz::getPesoAresta(int v1, int v2) const {
+    if (v1 < 0 || v1 >= num_vertices || v2 < 0 || v2 >= num_vertices)
         return 0;
-
-    int *parent = new int[n];
-    for (int i = 0; i < n; i++)
-    {
-        parent[i] = i;
-    }
-
-    auto find = [&parent](int x) -> int
-    {
-        while (parent[x] != x)
-            x = parent[x];
-        return x;
-    };
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (matriz_adj[i][j] != 0)
-            {
-                int pu = find(i);
-                int pv = find(j);
-                if (pu != pv)
-                {
-                    parent[pv] = pu;
-                }
-            }
-        }
-    }
-
-    int componentes = 0;
-    for (int i = 0; i < n; i++)
-    {
-        if (find(i) == i)
-            componentes++;
-    }
-
-    delete[] parent;
-    return componentes == 1 ? 1 : 0;
+        
+    return matriz_adj[v1][v2];
 }
 
-int grafo_matriz::get_grau() const
-{
-    int maxDegree = 0;
-    for (int i = 0; i < ordem; i++)
-    {
-        int degree = 0;
-        for (int j = 0; j < ordem; j++)
-        {
-            if (matriz_adj[i][j] != 0)
-            {
-                degree++;
+void GrafoMatriz::imprimirGrafo() const {
+    std::cout << "Grafo: " << nome << std::endl;
+    std::cout << "Número de vértices: " << num_vertices << std::endl;
+    std::cout << "Direcionado: " << (direcionado ? "Sim" : "Não") << std::endl;
+    std::cout << "Ponderado: " << (ponderado ? "Sim" : "Não") << std::endl;
+    std::cout << "Matriz de adjacência:" << std::endl;
+    
+    // Cabeçalho
+    std::cout << "   ";
+    for (int i = 0; i < num_vertices; i++) {
+        std::cout << std::setw(4) << i;
+    }
+    std::cout << std::endl;
+    
+    // Matriz
+    for (int i = 0; i < num_vertices; i++) {
+        std::cout << std::setw(3) << i;
+        for (int j = 0; j < num_vertices; j++) {
+            if (matriz_adj[i][j] != 0) {
+                std::cout << std::setw(4) << std::fixed << std::setprecision(1) << matriz_adj[i][j];
+            } else {
+                std::cout << std::setw(4) << "0";
             }
         }
-        if (degree > maxDegree)
-        {
-            maxDegree = degree;
-        }
+        std::cout << std::endl;
     }
-    return maxDegree;
 }
 
-bool grafo_matriz::carrega_grafo(const std::string &filename)
-{
-    // Cria objeto de leitura para o arquivo
-    leitura l(filename);
-
-    // Inicializa os atributos do grafo
-    this->ordem = l.get_num_nos();
+bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
+    leitura l(arquivo);
+    
+    num_vertices = l.get_num_nos();
+    direcionado = l.get_direcionado();
+    ponderado = l.get_ponderado_arestas();
+    
+    // Garantir capacidade suficiente
+    if (capacidade < num_vertices) {
+        redimensionar_matriz(num_vertices);
+    }
 
     // Inicializa os nós
-    for (int i = 0; i < ordem; i++)
-    {
-        float peso = (verticesPonderados) ? 0 : 0; // Ajustar para obter o peso correto se necessário
+    for (int i = 0; i < num_vertices; i++) {
+        float peso = l.get_ponderado_vertices() ? l.get_pesos_nos()[i] : 0;
         nos[i] = no(i, peso);
     }
 
     // Inicializa a matriz de adjacência
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
+    for (int i = 0; i < num_vertices; i++) {
+        for (int j = 0; j < num_vertices; j++) {
             matriz_adj[i][j] = 0;
         }
     }
 
     // Preenche a matriz de adjacência com as arestas
     int totalArestas = l.get_total_lin();
-    float **matriz = l.get_matriz_info();
+    float** matriz = l.get_matriz_info();
 
-    for (int i = 0; i < totalArestas; i++)
-    {
-        int origem = static_cast<int>(matriz[i][0]);  // Já está em 1-based
-        int destino = static_cast<int>(matriz[i][1]); // Já está em 1-based
-        float peso = matriz[i][2];
-        add_aresta(origem, destino, peso); // add_aresta fará a conversão para 0-based
+    for (int i = 0; i < totalArestas; i++) {
+        int origem = static_cast<int>(matriz[i][0]) - 1;  // Converter para 0-based
+        int destino = static_cast<int>(matriz[i][1]) - 1; // Converter para 0-based
+        float peso = l.get_ponderado_arestas() ? matriz[i][2] : 1.0f;
+        
+        adicionarAresta(origem, destino, peso);
     }
 
     return true;
 }
-
-grafo_matriz::MenorMaior grafo_matriz::menor_maior_distancia() const
-{
-    const float INF = 1e9f; // "Infinito" como valor alto
-
-    // Aloca matriz de distâncias
-    float **dist = new float *[ordem];
-    for (int i = 0; i < ordem; i++)
-    {
-        dist[i] = new float[ordem];
-    }
-
-    // Inicializa a matriz de distâncias
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            if (i == j)
-            {
-                dist[i][j] = 0;
-            }
-            else if (matriz_adj[i][j] != 0)
-            {
-                dist[i][j] = matriz_adj[i][j];
-            }
-            else
-            {
-                dist[i][j] = INF;
-            }
-        }
-    }
-
-    // Algoritmo de Floyd-Warshall
-    for (int k = 0; k < ordem; k++)
-    {
-        for (int i = 0; i < ordem; i++)
-        {
-            for (int j = 0; j < ordem; j++)
-            {
-                float novo = dist[i][k] + dist[k][j];
-                if (novo < dist[i][j])
-                {
-                    dist[i][j] = novo;
-                }
-            }
-        }
-    }
-
-    // Procura o par de nós com a maior distância (distância máxima finita)
-    int no1 = -1, no2 = -1;
-    float maxDist = -1;
-    for (int i = 0; i < ordem; i++)
-    {
-        for (int j = 0; j < ordem; j++)
-        {
-            if (i != j && dist[i][j] < INF && dist[i][j] > maxDist)
-            {
-                maxDist = dist[i][j];
-                no1 = i;
-                no2 = j;
-            }
-        }
-    }
-
-    // Libera memória da matriz auxiliar
-    for (int i = 0; i < ordem; i++)
-    {
-        delete[] dist[i];
-    }
-    delete[] dist;
-
-    // Retorna estrutura com índices convertidos para 1-based
-    MenorMaior ret;
-    ret.no1 = no1 + 1;
-    ret.no2 = no2 + 1;
-    ret.distancia = maxDist;
-    return ret;
-} */

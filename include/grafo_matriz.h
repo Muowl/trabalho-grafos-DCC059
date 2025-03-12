@@ -1,13 +1,11 @@
-/* #ifndef GRAFO_MATRIZ_H
-#define GRAFO_MATRIZ_H
-
+#pragma once
 #include "grafo.h"
 #include "no.h"
 #include "aresta.h"
 #include <iostream>
 #include <string>
 
-class grafo_matriz: public grafo {
+class GrafoMatriz : public Grafo {
 private:
     float** matriz_adj;
     no* nos;
@@ -19,8 +17,8 @@ private:
             nova_matriz[i] = new float[nova_capacidade]();
         }
 
-        for (int i = 0; i < ordem; ++i) {
-            for (int j = 0; j < ordem; ++j) {
+        for (int i = 0; i < num_vertices; ++i) {
+            for (int j = 0; j < num_vertices; ++j) {
                 nova_matriz[i][j] = matriz_adj[i][j];
             }
         }
@@ -35,62 +33,17 @@ private:
     }
 
 public:
-    // Estrutura auxiliar para retornar os nós com a maior distância
-    struct MenorMaior {
-        int no1;
-        int no2;
-        float distancia;
-    };
 
-    grafo_matriz() {
-        ordem = 0;
-        capacidade = 10;
-        direcionado = false;
-        
-        nos = new no[capacidade];
-        
-        matriz_adj = new float*[capacidade];
-        for (int i = 0; i < capacidade; i++) {
-            matriz_adj[i] = new float[capacidade]();
-        }
-    }
+    GrafoMatriz(int n = 0, bool dir = false, bool pond = false, const std::string& nome = "");
+    ~GrafoMatriz();
 
-    ~grafo_matriz() {
-        if (matriz_adj != nullptr) {
-            for (int i = 0; i < capacidade; i++) {
-                if (matriz_adj[i] != nullptr) {
-                    delete[] matriz_adj[i];
-                }
-            }
-            delete[] matriz_adj;
-        }
-        if (nos != nullptr) {
-            delete[] nos;
-        }
-    }
-
-    no* get_no(int id);
-    aresta* get_aresta(int origem, int destino);
-
-    void add_no(float peso);
-    void add_aresta(int origem, int destino, float peso);
-
-    aresta** get_vizinhos(int id);
-
-    void remove_no(int id);
+    // Métodos da interface Grafo
+    void adicionarAresta(int v1, int v2, float peso = 1.0) override;
+    void removerAresta(int v1, int v2) override;
+    bool existeAresta(int v1, int v2) const override;
+    float getPesoAresta(int v1, int v2) const override;
     
-    int n_conexo() const;
-    int get_grau() const override;
-
-    bool carrega_grafo(const std::string &filename);
-
-    // Métodos parte 2
-    void novo_no(float peso);
-    void nova_aresta(int origem, int destino, float peso);
-    void deleta_no(int id);
-    void deleta_aresta(int origem, int destino);
-
-    MenorMaior menor_maior_distancia() const;
+    // Métodos adicionais
+    void imprimirGrafo() const;
+    bool carregarDoArquivo(const std::string& arquivo);
 };
-
-#endif // GRAFO_MATRIZ_H */
