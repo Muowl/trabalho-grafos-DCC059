@@ -83,43 +83,33 @@ int main(int argc, char** argv) {
     }
     cout << endl;
     
-    // NOVO TESTE: Usando o grafo de matriz de adjacências ponderado
+        // Modificação no teste com matriz de adjacências
     cout << "\nTeste usando a implementação do grafo ponderado com matriz de adjacências:" << endl;
-    
-    // Criando grafo com todos os nós - agora ponderado
-    GrafoMatriz grafoMatriz(numNos, true, true, "Grafo AGMG - Matriz"); // Direcionado e ponderado
-    
-    // Adicionar apenas as arestas que saem do nó 0 para economizar memória, com seus pesos
-    arestasAdicionadas = 0;
-    for (int i = 0; i < arestas_com_peso.size(); i++) {
-        if (arestas_com_peso[i].origem == 0) {
-            grafoMatriz.adicionarAresta(
-                arestas_com_peso[i].origem, 
-                arestas_com_peso[i].destino, 
-                arestas_com_peso[i].peso
-            );
-            arestasAdicionadas++;
+
+    // Criar grafo com tamanho inicial pequeno e carregar do arquivo (compactado)
+    GrafoMatriz grafoMatriz(10, true, true, "Grafo AGMG - Matriz"); // Tamanho inicial pequeno
+    if (grafoMatriz.carregarDoArquivo(arquivo)) {
+        cout << "Grafo carregado com sucesso usando representação compacta" << endl;
+        
+        // Verificar e mostrar adjacências do nó 0 
+        cout << "Nó 0 -> ";
+        temAdjacente = false;
+        
+        for (int j = 0; j < grafoMatriz.getNumVertices(); j++) {
+            // Note: Aqui estamos trabalhando com o índice compacto, não com o ID original
+            if (grafoMatriz.existeAresta(0, j)) {
+                float peso = grafoMatriz.getPesoAresta(0, j);
+                cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
+                temAdjacente = true;
+            }
         }
-    }
-    
-    cout << "Arestas adicionadas ao grafo (partindo do nó 0): " << arestasAdicionadas << endl;
-    
-    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta e getPesoAresta
-    cout << "Nó 0 -> ";
-    temAdjacente = false;
-    
-    for (int j = 0; j < numNos; j++) {
-        if (grafoMatriz.existeAresta(0, j)) {
-            float peso = grafoMatriz.getPesoAresta(0, j);
-            cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
-            temAdjacente = true;
+        
+        if (!temAdjacente) {
+            cout << "(nenhum adjacente)";
         }
+        cout << endl;
+    } else {
+        cout << "Erro ao carregar o grafo do arquivo." << endl;
     }
-    
-    if (!temAdjacente) {
-        cout << "(nenhum adjacente)";
-    }
-    cout << endl;
-    
     return 0;
 }

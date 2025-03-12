@@ -8,8 +8,12 @@ GrafoMatriz::GrafoMatriz(int n, bool dir, bool pond, const std::string& nome)
     num_vertices = n;
     capacidade = n > 0 ? n : 10;
     
+    // Alocar apenas o suficiente para começar
+    // Para grafos grandes que serão carregados de arquivo, é melhor começar pequeno
+    capacidade = std::min(capacidade, 100); // Limitar tamanho inicial
+    
     nos = new No[capacidade];
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < std::min(n, capacidade); i++) {
         nos[i] = No(i, std::to_string(0.0f));
     }
     
@@ -92,34 +96,96 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     if (!l.ler_arquivo_grafo(arquivo))
         return false;
     
-    // Atualiza o número de vértices a partir da leitura
-    num_vertices = l.get_num_nos();
-    // Se a capacidade for menor, redimensionar
+    // Coletar todos os IDs únicos dos nós
+    Vetor<int> ids_unicos;
+    const Vetor<EdgeData>& arestas = l.get_arestas_com_peso();
+    
+    for (int i = 0; i < arestas.size(); i++) {
+        // Verificar se o ID já existe no vetor
+        bool origem_existe = false;
+        bool destino_existe = false;
+        
+        for (int j = 0; j < ids_unicos.size(); j++) {
+            if (ids_unicos[j] == arestas[i].origem) {
+                origem_existe = true;
+            }
+            if (ids_unicos[j] == arestas[i].destino) {
+                destino_existe = true;
+            }
+        }
+        
+        if (!origem_existe) {
+            ids_unicos.push_back(arestas[i].origem);
+        }
+        if (!destino_existe) {
+            ids_unicos.push_back(arestas[i].destino);
+        }
+    }
+    
+    // Ordenar os IDs usando insertion sort
+    for (int i = 1; i < ids_unicos.size(); i++) {
+        int chave = ids_unicos[i];
+        int j = i - 1;
+        
+        while (j >= 0 && ids_unicos[j] > chave) {
+            ids_unicos[j + 1] = ids_unicos[j];
+            j--;
+        }
+        ids_unicos[j + 1] = chave;
+    }
+    
+    // Atualizar o número de vértices para o número real de nós
+    num_vertices = ids_unicos.size();
+    std::cout << "Grafo compactado: " << num_vertices << " nós efetivos (de " 
+              << l.get_num_nos() << " possíveis IDs)" << std::endl;
+    
+    // Redimensionar a matriz para o tamanho compacto
     if (capacidade < num_vertices) {
         redimensionar_matriz(num_vertices);
     }
     
-    // Inicializa nós (para este exemplo, atribuímos peso 0)
+    // Inicializar os nós
     for (int i = 0; i < num_vertices; i++) {
-        nos[i] = No(i, std::to_string(0.0f));
+        nos[i] = No(i, std::to_string(ids_unicos[i])); // guarda o ID original como string
     }
     
-    // Zera a matriz de adjacência
+    // Zerar a matriz de adjacência
     for (int i = 0; i < num_vertices; i++) {
         for (int j = 0; j < num_vertices; j++) {
             matriz_adj[i][j] = 0;
         }
     }
     
-    // Preenche as arestas usando os pesos sintéticos obtidos
-    const auto& edges = l.get_arestas_com_peso();
-    for (size_t i = 0; i < edges.size(); i++) {
-        // Ajusta para 0-based, se os IDs no arquivo estiverem em 1-based
-        int origem = edges[i].origem - 1;
-        int destino = edges[i].destino - 1;
-        float peso = edges[i].peso;
-        if (origem >= 0 && origem < num_vertices && destino >= 0 && destino < num_vertices)
-            adicionarAresta(origem, destino, peso);
+    // Função auxiliar de busca binária
+    auto buscar_indice = [&ids_unicos](int id) -> int {
+        int esquerda = 0;
+        int direita = ids_unicos.size() - 1;
+        
+        while (esquerda <= direita) {
+            int meio = esquerda + (direita - esquerda) / 2;
+            if (ids_unicos[meio] == id) {
+                return meio;
+            }
+            if (ids_unicos[meio] < id) {
+                esquerda = meio + 1;
+            } else {
+                direita = meio - 1;
+            }
+        }
+        return -1; // não encontrado
+    };
+    
+    // Preencher a matriz usando o mapeamento
+    for (int i = 0; i < arestas.size(); i++) {
+        int origem_idx = buscar_indice(arestas[i].origem);
+        int destino_idx = buscar_indice(arestas[i].destino);
+        
+        if (origem_idx >= 0 && destino_idx >= 0) {
+            matriz_adj[origem_idx][destino_idx] = arestas[i].peso;
+            if (!direcionado && origem_idx != destino_idx) {
+                matriz_adj[destino_idx][origem_idx] = arestas[i].peso;
+            }
+        }
     }
     
     return true;
