@@ -62,7 +62,6 @@ public:
         }
         
         if (idNoMaiorGrau == -1) {
-            // Graph is empty
             return No(-1);
         }
         

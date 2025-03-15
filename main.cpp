@@ -49,15 +49,17 @@ int main(int argc, char** argv) {
     cout << "\nTeste usando a implementação do grafo ponderado com lista de adjacências:" << endl;
     
     // Criando grafo com todos os nós - agora ponderado
-    GrafoLista grafo(numNos, true, true, "Grafo AGMG"); // Direcionado e ponderado
+    GrafoLista grafo(numNos, false, true, "Grafo AGMG"); // Direcionado e ponderado
     
-    // Adicionar apenas as arestas que saem do nó 0 e alguns outros para demonstrar o cálculo de grau
+    // Adicionar arestas relacionadas aos nós 0, 1 e 11342 para demonstrar o cálculo de grau
     int arestasAdicionadas = 0;
     for (int i = 0; i < arestas_com_peso.size(); i++) {
         if (arestas_com_peso[i].origem == 0 || 
             arestas_com_peso[i].origem == 1 || 
             arestas_com_peso[i].destino == 0 ||
-            arestas_com_peso[i].destino == 1) {
+            arestas_com_peso[i].destino == 1 ||
+            arestas_com_peso[i].origem == 11342 ||    // Adicionado: incluir arestas com origem em 11342
+            arestas_com_peso[i].destino == 11342) {   // Adicionado: incluir arestas com destino em 11342
             
             grafo.adicionarAresta(
                 arestas_com_peso[i].origem, 
@@ -77,10 +79,47 @@ int main(int argc, char** argv) {
     // Calcular e exibir o grau do nó 1
     int grauNo1 = grafo.calcularGrau(1);
     cout << "Grau do nó 1: " << grauNo1 << endl;
+
+    // Calcular e exibir o grau do nó 11342
+    int grauNo11342 = grafo.calcularGrau(11342);
+    cout << "Grau do nó 11342: " << grauNo11342 << endl;
+    
+    // Mostrar as conexões específicas do nó 11342 para verificação
+    cout << "\nConexões do nó 11342:" << endl;
+    cout << "11342 -> ";
+    temAdjacente = false;
+    
+    for (int j = 0; j < numNos; j++) {
+        if (grafo.existeAresta(11342, j)) {
+            cout << j << " ";
+            temAdjacente = true;
+        }
+    }
+    
+    if (!temAdjacente) {
+        cout << "(nenhum adjacente de saída)";
+    }
+    cout << endl;
+    
+    // Mostrar conexões de entrada para 11342
+    cout << "-> 11342: ";
+    temAdjacente = false;
+    
+    for (int j = 0; j < numNos; j++) {
+        if (j != 11342 && grafo.existeAresta(j, 11342)) {
+            cout << j << " ";
+            temAdjacente = true;
+        }
+    }
+    
+    if (!temAdjacente) {
+        cout << "(nenhum adjacente de entrada)";
+    }
+    cout << endl;
     
     // Encontrar e exibir o nó com maior grau entre os adicionados
     cout << "\nBuscando nó com maior grau (entre nós 0 e 1):" << endl;
-    No noMaiorGrau = grafo.getNoComMaiorGrauLimitado(100); // Limitar a busca para evitar problemas de performance
+    No noMaiorGrau = grafo.getNoComMaiorGrauLimitado(2); // Limitar a busca para evitar problemas de performance
     if (noMaiorGrau.getId() != -1) {
         cout << "Nó com maior grau: " << noMaiorGrau.getId() 
              << " (Grau: " << noMaiorGrau.getGrau() << ")" << endl;
@@ -92,7 +131,7 @@ int main(int argc, char** argv) {
     cout << "\nTeste usando a implementação do grafo ponderado com matriz de adjacências:" << endl;
 
     // Criar grafo com tamanho inicial pequeno e carregar do arquivo (compactado)
-    GrafoMatriz grafoMatriz(10, true, true, "Grafo AGMG - Matriz"); // Tamanho inicial pequeno
+    GrafoMatriz grafoMatriz(10, false, true, "Grafo AGMG - Matriz"); // Tamanho inicial pequeno
     if (grafoMatriz.carregarDoArquivo(arquivo)) {
         cout << "Grafo carregado com sucesso usando representação compacta" << endl;
         
