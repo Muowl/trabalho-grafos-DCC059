@@ -90,4 +90,3 @@ void GrafoLista::carregarDoArquivo(const std::string& arquivo) {
         adicionarAresta(arestas[i].origem, arestas[i].destino, arestas[i].peso);
     }
 }
-

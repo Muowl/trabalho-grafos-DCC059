@@ -49,12 +49,16 @@ int main(int argc, char** argv) {
     cout << "\nTeste usando a implementação do grafo ponderado com lista de adjacências:" << endl;
     
     // Criando grafo com todos os nós - agora ponderado
-    GrafoLista grafo(numNos, true, true, "Grafo AGMG - Lista"); // Direcionado e ponderado
+    GrafoLista grafo(numNos, true, true, "Grafo AGMG"); // Direcionado e ponderado
     
-    // Adicionar apenas as arestas que saem do nó 0 para economizar memória, com seus pesos
+    // Adicionar apenas as arestas que saem do nó 0 e alguns outros para demonstrar o cálculo de grau
     int arestasAdicionadas = 0;
     for (int i = 0; i < arestas_com_peso.size(); i++) {
-        if (arestas_com_peso[i].origem == 0) {
+        if (arestas_com_peso[i].origem == 0 || 
+            arestas_com_peso[i].origem == 1 || 
+            arestas_com_peso[i].destino == 0 ||
+            arestas_com_peso[i].destino == 1) {
+            
             grafo.adicionarAresta(
                 arestas_com_peso[i].origem, 
                 arestas_com_peso[i].destino, 
@@ -64,26 +68,27 @@ int main(int argc, char** argv) {
         }
     }
     
-    cout << "Arestas adicionadas ao grafo (partindo do nó 0): " << arestasAdicionadas << endl;
+    cout << "Arestas adicionadas ao grafo: " << arestasAdicionadas << endl;
     
-    // Verificar e mostrar adjacências do nó 0 usando o método existeAresta e getPesoAresta
-    cout << "Nó 0 -> ";
-    temAdjacente = false;
+    // Calcular e exibir o grau do nó 0
+    int grauNo0 = grafo.calcularGrau(0);
+    cout << "\nGrau do nó 0: " << grauNo0 << endl;
     
-    for (int j = 0; j < numNos; j++) {
-        if (grafo.existeAresta(0, j)) {
-            float peso = grafo.getPesoAresta(0, j);
-            cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
-            temAdjacente = true;
-        }
+    // Calcular e exibir o grau do nó 1
+    int grauNo1 = grafo.calcularGrau(1);
+    cout << "Grau do nó 1: " << grauNo1 << endl;
+    
+    // Encontrar e exibir o nó com maior grau entre os adicionados
+    cout << "\nBuscando nó com maior grau (entre nós 0 e 1):" << endl;
+    No noMaiorGrau = grafo.getNoComMaiorGrauLimitado(100); // Limitar a busca para evitar problemas de performance
+    if (noMaiorGrau.getId() != -1) {
+        cout << "Nó com maior grau: " << noMaiorGrau.getId() 
+             << " (Grau: " << noMaiorGrau.getGrau() << ")" << endl;
+    } else {
+        cout << "Nenhum nó com conexões encontrado." << endl;
     }
     
-    if (!temAdjacente) {
-        cout << "(nenhum adjacente)";
-    }
-    cout << endl;
-    
-        // Modificação no teste com matriz de adjacências
+    // Modificação no teste com matriz de adjacências
     cout << "\nTeste usando a implementação do grafo ponderado com matriz de adjacências:" << endl;
 
     // Criar grafo com tamanho inicial pequeno e carregar do arquivo (compactado)
