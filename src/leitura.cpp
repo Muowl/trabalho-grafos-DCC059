@@ -3,11 +3,13 @@
 #include <string>
 #include <cstdlib>
 #include <cmath>
+#include <algorithm>
 #include "../include/leitura.h"
 
 leitura::leitura(const std::string &filename) : num_nos(0)
 {
     ler_arquivo_grafo(filename);
+    identificar_nos_presentes();
     gerar_pesos_sinteticos();
 }
 
@@ -49,6 +51,100 @@ bool leitura::ler_arquivo_grafo(const std::string &filename)
 
     arquivo.close();
     return true;
+}
+
+void leitura::identificar_nos_presentes() {
+    // Conjunto temporário para armazenar IDs únicos
+    Vetor<bool> presente;
+    presente.resize(num_nos, false);
+    
+    // Marcar todos os nós que aparecem nas arestas
+    for (int i = 0; i < arestas.size(); i++) {
+        presente[arestas[i].first] = true;
+        presente[arestas[i].second] = true;
+    }
+    
+    // Contar e popular o vetor com os IDs presentes
+    nos_presentes.clear();
+    for (int i = 0; i < num_nos; i++) {
+        if (presente[i]) {
+            nos_presentes.push_back(i);
+        }
+    }
+    
+    // Ordenar os IDs (já estão ordenados neste caso, mas para generalizar)
+    // Não podemos usar std::sort diretamente com o nosso Vetor, então vamos usar uma abordagem manual
+    for (int i = 0; i < nos_presentes.size(); i++) {
+        for (int j = i + 1; j < nos_presentes.size(); j++) {
+            if (nos_presentes[i] > nos_presentes[j]) {
+                int temp = nos_presentes[i];
+                nos_presentes[i] = nos_presentes[j];
+                nos_presentes[j] = temp;
+            }
+        }
+    }
+}
+
+void leitura::exibir_nos_presentes() const {
+    std::cout << "Nós presentes no grafo (" << nos_presentes.size() << " nós):" << std::endl;
+    
+    int contador = 0;
+    for (int i = 0; i < nos_presentes.size(); i++) {
+        std::cout << nos_presentes[i] << " ";
+        contador++;
+        
+        // Quebra de linha a cada 10 nós para melhorar a visualização
+        if (contador % 10 == 0) {
+            std::cout << std::endl;
+        }
+    }
+    
+    if (contador % 10 != 0) {
+        std::cout << std::endl;
+    }
+    
+    // Exibir gaps (IDs ausentes) para diagnóstico
+    if (nos_presentes.size() > 1) {
+        std::cout << "Gaps na sequência de IDs:" << std::endl;
+        int gaps = 0;
+        
+        for (int i = 1; i < nos_presentes.size(); i++) {
+            int gap = nos_presentes[i] - nos_presentes[i-1] - 1;
+            if (gap > 0) {
+                std::cout << "Entre " << nos_presentes[i-1] << " e " << nos_presentes[i] 
+                          << ": " << gap << " ID(s) ausente(s)" << std::endl;
+                gaps++;
+                
+                // Limitar a exibição para não sobrecarregar
+                if (gaps >= 10) {
+                    std::cout << "... (mais gaps existentes)" << std::endl;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+bool leitura::no_esta_presente(int id) const {
+    // Busca binária para verificar rapidamente se um nó está presente
+    int esquerda = 0;
+    int direita = nos_presentes.size() - 1;
+    
+    while (esquerda <= direita) {
+        int meio = esquerda + (direita - esquerda) / 2;
+        
+        if (nos_presentes[meio] == id) {
+            return true;
+        }
+        
+        if (nos_presentes[meio] < id) {
+            esquerda = meio + 1;
+        } else {
+            direita = meio - 1;
+        }
+    }
+    
+    return false;
 }
 
 void leitura::gerar_pesos_sinteticos() {

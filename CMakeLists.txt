@@ -19,6 +19,10 @@ set(SOURCES
     src/grafo_lista.cpp
     src/grafo_matriz.cpp
     src/grafo.cpp
+    src/algoritmo_guloso.cpp
+    src/algoritmo_randomizado.cpp
+    src/algoritmo_relativo.cpp
+    src/comunidade.cpp
 )
 
 # Criar executável

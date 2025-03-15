@@ -3,11 +3,18 @@
 #include "grafo_matriz.h"
 #include "no.h"
 #include "aresta.h"
+#include "algoritmo_guloso.h"
+#include "algoritmo_randomizado.h"
+#include "algoritmo_relativo.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
+
+void testarDeteccaoComunidades(GrafoLista& grafo, const leitura& leitor);
 
 int main(int argc, char** argv) {
     string arquivo = "../entradas/grafo.txt";
@@ -16,6 +23,19 @@ int main(int argc, char** argv) {
     
     // Criar grafo usando listas de adjacência
     leitura leitor(arquivo);
+    
+    // Exibir informações sobre nós presentes
+    leitor.exibir_nos_presentes();
+    
+    // Verificar a presença de alguns nós específicos
+    cout << "\nVerificação de nós específicos:" << endl;
+    cout << "Nó 0 está presente? " << (leitor.no_esta_presente(0) ? "Sim" : "Não") << endl;
+    cout << "Nó 1 está presente? " << (leitor.no_esta_presente(1) ? "Sim" : "Não") << endl;
+    cout << "Nó 2 está presente? " << (leitor.no_esta_presente(2) ? "Sim" : "Não") << endl;
+    cout << "Nó 3 está presente? " << (leitor.no_esta_presente(3) ? "Sim" : "Não") << endl;
+    cout << "Nó 11342 está presente? " << (leitor.no_esta_presente(11342) ? "Sim" : "Não") << endl;
+    
+    // Restante do código para construir grafo e testar algoritmos...
     
     int numNos = leitor.get_num_nos();
     cout << "Número de nós total: " << numNos << endl;
@@ -155,5 +175,72 @@ int main(int argc, char** argv) {
     } else {
         cout << "Erro ao carregar o grafo do arquivo." << endl;
     }
+    
+    testarDeteccaoComunidades(grafo, leitor);
+    
     return 0;
+}
+
+// Implementar testes para algoritmos de detecção de comunidades
+void testarDeteccaoComunidades(GrafoLista& grafo, const leitura& leitor) {
+    cout << "\n=====================================================" << endl;
+    cout << "TESTES DE ALGORITMOS DE DETECÇÃO DE COMUNIDADES" << endl;
+    cout << "=====================================================" << endl;
+    
+    // Verificar se o grafo é muito grande para análise completa
+    if (grafo.getNumVertices() > 100000) {
+        cout << "AVISO: Grafo muito grande (" << grafo.getNumVertices() 
+             << " vértices), os algoritmos usarão abordagens ultrasseguras." << endl;
+    }
+    
+    try {
+        // Teste do algoritmo guloso com abordagem ultrassegura
+        cout << "\n----- Algoritmo Guloso -----" << endl;
+        auto inicioGuloso = high_resolution_clock::now();
+        
+        // Limite extremamente reduzido para 5 nós apenas
+        AlgoritmoGuloso guloso(&grafo, 0.3f, 5);  
+        guloso.detectarComunidades();
+        guloso.imprimirResultados();
+        
+        auto fimGuloso = high_resolution_clock::now();
+        auto duracaoGuloso = duration_cast<milliseconds>(fimGuloso - inicioGuloso);
+        cout << "Tempo de execução: " << duracaoGuloso.count() << " ms" << endl;
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo guloso: " << e.what() << endl;
+    } catch (...) {
+        cerr << "Erro desconhecido no algoritmo guloso" << endl;
+    }
+    
+    try {
+        // Teste do algoritmo randomizado - passando o leitor
+        cout << "\n----- Algoritmo Randomizado -----" << endl;
+        auto inicioRandom = high_resolution_clock::now();
+        AlgoritmoRandomizado randomizado(&grafo, &leitor, 0.5f, 3, time(0));
+        randomizado.detectarComunidades();
+        randomizado.imprimirResultados();
+        auto fimRandom = high_resolution_clock::now();
+        auto duracaoRandom = duration_cast<milliseconds>(fimRandom - inicioRandom);
+        cout << "Tempo de execução: " << duracaoRandom.count() << " ms" << endl;
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo randomizado: " << e.what() << endl;
+    } catch (...) {
+        cerr << "Erro desconhecido no algoritmo randomizado" << endl;
+    }
+    
+    try {
+        // Teste do algoritmo relativo - passando o leitor
+        cout << "\n----- Algoritmo Relativo -----" << endl;
+        auto inicioRelativo = high_resolution_clock::now();
+        AlgoritmoRelativo relativo(&grafo, AlgoritmoRelativo::GULOSO, 0.01f, 5, &leitor);
+        relativo.detectarComunidades();
+        relativo.imprimirResultados();
+        auto fimRelativo = high_resolution_clock::now();
+        auto duracaoRelativo = duration_cast<milliseconds>(fimRelativo - inicioRelativo);
+        cout << "Tempo de execução: " << duracaoRelativo.count() << " ms" << endl;
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo relativo: " << e.what() << endl;
+    } catch (...) {
+        cerr << "Erro desconhecido no algoritmo relativo" << endl;
+    }
 }
