@@ -1,5 +1,6 @@
 #include "leitura.h"
 #include "grafo_lista.h"
+#include "grafo_matriz.h"
 #include "algoritmo_guloso.h"
 #include "algoritmo_randomizado.h"
 #include "algoritmo_relativo.h"
@@ -7,6 +8,7 @@
 #include <iomanip>
 #include <chrono>
 #include <string>
+#include <cstring>
 
 using namespace std;
 using namespace std::chrono;
@@ -27,29 +29,69 @@ ResultadoAlgoritmo executarAlgoritmoGuloso(Grafo* grafo, const leitura* leitor, 
 ResultadoAlgoritmo executarAlgoritmoRandomizado(Grafo* grafo, const leitura* leitor, bool exibirDetalhes = true);
 ResultadoAlgoritmo executarAlgoritmoRelativo(Grafo* grafo, const leitura* leitor, bool exibirDetalhes = true);
 void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos);
+void exibirAjuda();
 
 int main(int argc, char** argv) {
-    string arquivo = "../entradas/grafo-teste.txt";
-    if (argc > 1) {
-        arquivo = argv[1];
+    // Valor padrão para o arquivo
+    string arquivo_base = "grafo-teste.txt";
+    string diretorio_entradas = "../entradas/";
+    string caminho_arquivo;
+    bool usarMatriz = false;
+    bool resolverProblema = false;
+    
+    // Parse command line arguments
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-p") == 0) {
+            resolverProblema = true;
+        } else if (strcmp(argv[i], "-m") == 0) {
+            usarMatriz = true;
+        } else if (strcmp(argv[i], "-l") == 0) {
+            usarMatriz = false;
+        } else if (argv[i][0] != '-') {
+            // Se for um nome de arquivo, apenas armazena o nome base
+            arquivo_base = argv[i];
+        } else {
+            exibirAjuda();
+            return 1;
+        }
+    }
+    
+    // Montar o caminho completo do arquivo
+    caminho_arquivo = diretorio_entradas + arquivo_base;
+    
+    if (!resolverProblema) {
+        cout << "Erro: Parâmetro -p obrigatório." << endl;
+        exibirAjuda();
+        return 1;
     }
     
     cout << "ANÁLISE DE COMUNIDADES EM GRAFOS" << endl;
     cout << "=================================" << endl;
-    cout << "Carregando grafo do arquivo: " << arquivo << endl;
+    cout << "Arquivo de entrada: " << arquivo_base << endl;
+    cout << "Caminho completo: " << caminho_arquivo << endl;
+    cout << "Usando representação: " << (usarMatriz ? "Matriz" : "Lista") << endl;
     
-    // Criar grafo usando listas de adjacência
-    leitura leitor(arquivo);
+    // Criar grafo usando listas ou matriz de adjacência
+    leitura leitor(caminho_arquivo);
     
     int numNos = leitor.get_num_nos();
     cout << "Número de nós total: " << numNos << endl;
-    
-    // Adicionar esta linha para mostrar a informação uma única vez
     cout << "Número de arestas: " << leitor.get_arestas_com_peso().size() << endl;
     
-    // Criar e carregar grafo lista
-    GrafoLista grafo(numNos, false, true, "Grafo de Comunidades");
-    grafo.carregarDoArquivo(arquivo);
+    // Criar o grafo conforme especificado
+    Grafo* grafo = nullptr;
+    
+    if (usarMatriz) {
+        grafo = new GrafoMatriz(numNos, false, true, "Grafo de Comunidades");
+    } else {
+        grafo = new GrafoLista(numNos, false, true, "Grafo de Comunidades");
+    }
+    
+    // Carregar arestas no grafo
+    const Vetor<EdgeData>& arestas = leitor.get_arestas_com_peso();
+    for (int i = 0; i < arestas.size(); i++) {
+        grafo->adicionarAresta(arestas[i].origem, arestas[i].destino, arestas[i].peso);
+    }
     
     cout << "\nPreparando para executar algoritmos de detecção de comunidades..." << endl;
     
@@ -57,18 +99,29 @@ int main(int argc, char** argv) {
     ResultadoAlgoritmo resultados[3];
     
     cout << "\nExecutando Algoritmo Guloso..." << endl;
-    resultados[0] = executarAlgoritmoGuloso(&grafo, &leitor);
+    resultados[0] = executarAlgoritmoGuloso(grafo, &leitor);
     
     cout << "\nExecutando Algoritmo Randomizado..." << endl;
-    resultados[1] = executarAlgoritmoRandomizado(&grafo, &leitor);
+    resultados[1] = executarAlgoritmoRandomizado(grafo, &leitor);
     
     cout << "\nExecutando Algoritmo Relativo..." << endl;
-    resultados[2] = executarAlgoritmoRelativo(&grafo, &leitor);
+    resultados[2] = executarAlgoritmoRelativo(grafo, &leitor);
     
     // Exibir comparação dos algoritmos
     compararAlgoritmos(resultados, 3);
     
+    // Liberar memória
+    delete grafo;
+    
     return 0;
+}
+
+void exibirAjuda() {
+    cout << "Uso: ./main.out -p [-m|-l] arquivo.txt" << endl;
+    cout << "  -p: Executa a detecção de comunidades (obrigatório)" << endl;
+    cout << "  -m: Utiliza representação de matriz de adjacência" << endl;
+    cout << "  -l: Utiliza representação de lista de adjacência (padrão)" << endl;
+    cout << "  arquivo.txt: Arquivo com dados do grafo (procurado na pasta entradas/)" << endl;
 }
 
 // Função para executar algoritmo guloso e coletar métricas
