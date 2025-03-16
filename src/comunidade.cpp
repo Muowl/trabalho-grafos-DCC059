@@ -5,6 +5,31 @@
 // Implementação da classe Comunidade
 Comunidade::Comunidade(int id) : id(id) {}
 
+// Implementação do construtor de cópia
+Comunidade::Comunidade(const Comunidade& other) : id(other.id) {
+    // vertices é inicializado automaticamente através do construtor padrão
+    // Cópia profunda dos vértices - um por um para evitar problemas de atribuição
+    for (int i = 0; i < other.vertices.size(); i++) {
+        vertices.push_back(other.vertices[i]);
+    }
+}
+
+// Implementação do operador de atribuição
+Comunidade& Comunidade::operator=(const Comunidade& other) {
+    if (this != &other) {
+        id = other.id;
+        
+        // Limpar os vértices existentes
+        vertices.clear();
+        
+        // Copiar vértices um por um
+        for (int i = 0; i < other.vertices.size(); i++) {
+            vertices.push_back(other.vertices[i]);
+        }
+    }
+    return *this;
+}
+
 void Comunidade::adicionarVertice(int vertice) {
     vertices.push_back(vertice);
 }
@@ -26,8 +51,17 @@ int Comunidade::getId() const {
     return id;
 }
 
-const Vetor<int>& Comunidade::getVertices() const {
-    return vertices;
+// Retorna uma cópia em vez de uma referência
+Vetor<int> Comunidade::getVertices() const {
+    return vertices;  // Cria uma cópia
+}
+
+// Adiciona um método mais seguro para obter vértices individuais
+int Comunidade::getVertice(int index) const {
+    if (index >= 0 && index < vertices.size()) {
+        return vertices[index];
+    }
+    return -1;  // ID de vértice inválido
 }
 
 float Comunidade::calcularDensidade(const Grafo* grafo) const {
@@ -177,15 +211,15 @@ void DetectorComunidades::imprimirResultados() const {
     }
     std::cout << std::endl;
     
-    // Mostrar vértices de cada comunidade (limitado a primeiros 5 vértices para não sobrecarregar)
+    // Mostrar vértices de cada comunidade (limitado aos primeiros 5 vértices)
     std::cout << "Vértices por comunidade (limitado a 5 vértices):" << std::endl;
     for (int i = 0; i < comunidades.size(); i++) {
         const Comunidade& c = comunidades[i];
         std::cout << "C" << i << ": ";
         
         int count = 0;
-        for (int j = 0; j < c.getVertices().size() && count < 5; j++, count++) {
-            std::cout << c.getVertices()[j] << " ";
+        for (int j = 0; j < c.getTamanho() && count < 5; j++, count++) {
+            std::cout << c.getVertice(j) << " ";
         }
         
         if (c.getTamanho() > 5) {

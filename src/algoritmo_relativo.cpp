@@ -63,21 +63,27 @@ void AlgoritmoRelativo::inicializarComAlgoritmo() {
         // Copiar as comunidades (limpar antes para evitar duplicações)
         comunidades.clear();
         
-        // Copia as comunidades encontradas
-        for (int i = 0; i < algoritmoInicial->getNumComunidades(); i++) {
-            comunidades.push_back(algoritmoInicial->getComunidades()[i]);
+        // Deep copy of all communities
+        const Vetor<Comunidade>& comsOriginais = algoritmoInicial->getComunidades();
+        for (int i = 0; i < comsOriginais.size(); i++) {
+            // This will use our new copy constructor to make a proper copy
+            comunidades.push_back(comsOriginais[i]);
         }
         
         // Limpar e redimensionar atribuição de vértices
         atribuicaoVertices.clear();
         atribuicaoVertices.resize(grafo->getNumVertices(), -1);
         
-        // Copiar apenas os vértices que realmente estão nas comunidades
-        // Esta abordagem é mais segura para grafos grandes
-        for (int i = 0; i < algoritmoInicial->getNumComunidades(); i++) {
-            const Comunidade& comunidade = algoritmoInicial->getComunidades()[i];
+        // Copy vertex assignments safely
+        for (int i = 0; i < grafo->getNumVertices(); i++) {
+            atribuicaoVertices[i] = algoritmoInicial->getComunidadeDoVertice(i);
+        }
+        
+        // Make sure we have a complete map of vertices to communities
+        for (int i = 0; i < comunidades.size(); i++) {
+            Comunidade& comunidade = comunidades[i];
             for (int j = 0; j < comunidade.getTamanho(); j++) {
-                int vertice = comunidade.getVertices()[j];
+                int vertice = comunidade.getVertice(j);
                 if (vertice >= 0 && vertice < atribuicaoVertices.size()) {
                     atribuicaoVertices[vertice] = i;
                 }
@@ -85,6 +91,7 @@ void AlgoritmoRelativo::inicializarComAlgoritmo() {
         }
         
         delete algoritmoInicial;
+        algoritmoInicial = nullptr; // Avoid dangling pointer
         
         std::cout << "Algoritmo Relativo: Inicialização concluída com " 
                   << comunidades.size() << " comunidades." << std::endl;
@@ -173,7 +180,7 @@ float AlgoritmoRelativo::calcularGanhoModularidade(int vertice, int comunidadeOr
     // Contar conexões com a comunidade original (se houver)
     const Comunidade& comOriginal = comunidades[comunidadeOriginal];
     for (int i = 0; i < comOriginal.getTamanho(); i++) {
-        int v = comOriginal.getVertices()[i];
+        int v = comOriginal.getVertice(i);
         if (v != vertice && v < grafo->getNumVertices() && grafo->existeAresta(vertice, v)) {
             conexoesOriginal++;
         }
@@ -182,7 +189,7 @@ float AlgoritmoRelativo::calcularGanhoModularidade(int vertice, int comunidadeOr
     // Contar conexões com a comunidade de destino
     const Comunidade& comDestino = comunidades[comunidadeDestino];
     for (int i = 0; i < comDestino.getTamanho(); i++) {
-        int v = comDestino.getVertices()[i];
+        int v = comDestino.getVertice(i);
         if (v < grafo->getNumVertices() && grafo->existeAresta(vertice, v)) {
             conexoesDestino++;
         }

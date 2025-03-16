@@ -12,12 +12,20 @@ private:
     
 public:
     Comunidade(int id = -1);
+    // Add copy constructor and assignment operator
+    Comunidade(const Comunidade& other);
+    Comunidade& operator=(const Comunidade& other);
     
     void adicionarVertice(int vertice);
     bool contemVertice(int vertice) const;
     int getTamanho() const;
     int getId() const;
-    const Vetor<int>& getVertices() const;
+    
+    // Return a copy of vertices instead of a reference to avoid use-after-free
+    Vetor<int> getVertices() const;
+    
+    // Get vertex at specific index (safer than returning the whole vector)
+    int getVertice(int index) const;
     
     // Calcular densidade interna da comunidade
     float calcularDensidade(const Grafo* grafo) const;
