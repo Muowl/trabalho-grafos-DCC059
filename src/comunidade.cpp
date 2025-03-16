@@ -157,18 +157,72 @@ int DetectorComunidades::getComunidadeDoVertice(int vertice) const {
 }
 
 float DetectorComunidades::avaliarQualidade() const {
-    // Para grafos muito grandes, retornar um valor simplificado
-    if (grafo->getNumVertices() > 10000) {
-        // Calcular densidade média das comunidades como métrica alternativa
-        float densidadeMedia = 0.0f;
-        for (int i = 0; i < comunidades.size(); i++) {
-            densidadeMedia += comunidades[i].calcularDensidade(grafo);
+    // Se não há comunidades ou grafo vazio, não há modularidade
+    if (comunidades.size() == 0 || grafo == nullptr || grafo->getNumVertices() == 0) {
+        return 0.0f;
+    }
+
+    // Contar arestas (m) - multiplicamos por 2 para grafos não direcionados
+    float m = 0.0f;
+    for (int i = 0; i < grafo->getNumVertices(); i++) {
+        for (int j = 0; j < grafo->getNumVertices(); j++) {
+            if (grafo->existeAresta(i, j)) {
+                m += grafo->getPesoAresta(i, j);
+            }
         }
-        return comunidades.size() > 0 ? densidadeMedia / comunidades.size() : 0.0f;
     }
     
-    // Para grafos pequenos, usar modularity
-    return calcularModularidade();
+    // Se não há arestas, não há modularidade
+    if (m < 0.000001f) {
+        return 0.0f;
+    }
+    
+    // Normalizar m para grafos não direcionados (cada aresta é contada duas vezes)
+    if (!grafo->isDirecionado()) {
+        m /= 2.0f;
+    }
+    
+    // Somatório da fórmula de modularidade: Q = Σ[eii - (ai)²]
+    double Q = 0.0;  // Usar double para maior precisão
+    
+    for (int c = 0; c < comunidades.size(); c++) {
+        // Calcular eii (fração de arestas dentro da comunidade)
+        double eii = 0.0;
+        // Calcular ai (fração de arestas com pelo menos uma ponta na comunidade)
+        double ai = 0.0;
+        
+        // Obter vertices da comunidade c
+        const Vetor<int>& vertices = comunidades[c].getVertices();
+        
+        // Calcular eii
+        for (int i = 0; i < vertices.size(); i++) {
+            int v1 = vertices[i];
+            
+            for (int j = 0; j < vertices.size(); j++) {
+                int v2 = vertices[j];
+                
+                if (grafo->existeAresta(v1, v2)) {
+                    eii += grafo->getPesoAresta(v1, v2);
+                }
+            }
+            
+            // Calcular parte de ai
+            for (int j = 0; j < grafo->getNumVertices(); j++) {
+                if (grafo->existeAresta(v1, j)) {
+                    ai += grafo->getPesoAresta(v1, j);
+                }
+            }
+        }
+        
+        // Normalizar eii e ai
+        eii /= (2.0 * m);
+        ai /= (2.0 * m);
+        
+        // Adicionar à modularidade total
+        Q += (eii - (ai * ai));
+    }
+    
+    return static_cast<float>(Q);
 }
 
 void DetectorComunidades::imprimirResultados() const {

@@ -11,7 +11,6 @@
 
 using namespace std;
 
-// Structure to hold algorithm results
 struct ResultadoAlgoritmo {
     string nome;
     int numComunidades;
@@ -290,7 +289,17 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
     for (int i = 0; i < numAlgoritmos; i++) {
         cout << left << setw(15) << resultados[i].nome << " | ";
         cout << setw(10) << resultados[i].numComunidades << " | ";
-        cout << fixed << setprecision(4) << setw(12) << resultados[i].modularidade << " | ";
+        
+        // Usar maior precisão para modularidade e evitar exibição de -0.0000
+        float mod = resultados[i].modularidade;
+        if (std::abs(mod) < 0.00001f) {
+            mod = 0.0f; // Evitar -0.0000
+        }
+        
+        // Aumentar precisão para 6 casas decimais para capturar valores pequenos
+        cout << fixed << setprecision(6) << setw(12) << mod << " | ";
+        
+        // Manter precisão original para densidade média
         cout << fixed << setprecision(4) << setw(16) << resultados[i].densidadeMedia << " | ";
         cout << setw(13) << resultados[i].tamanhoMedioComunidade << " | ";
         cout << setw(10) << resultados[i].maiorComunidade << endl;
