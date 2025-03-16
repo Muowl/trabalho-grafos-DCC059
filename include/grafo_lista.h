@@ -8,6 +8,12 @@
 class GrafoLista : public Grafo {
 private:
     ListaEncadeada<Aresta>* adjacencias;
+    float** matriz_cache; // Cache para consultas rápidas de arestas
+    bool** existencia_cache; // Cache para verificar existência rapidamente
+
+    // Método auxiliar para inicializar e limpar o cache
+    void inicializarCache();
+    void limparCache();
 
 public:
     GrafoLista(int n, bool dir = false, bool pond = false, const std::string& nome = "");
