@@ -6,10 +6,10 @@
 AlgoritmoRandomizado::AlgoritmoRandomizado(const Grafo* g, const leitura* l, float probabilidadeConexao, 
                                          int numComunidadesAlvo, int semente)
     : DetectorComunidades(g), 
-      leitor(l),
       probabilidadeConexao(probabilidadeConexao),
       numComunidadesAlvo(numComunidadesAlvo),
-      semente(semente) {
+      semente(semente),
+      leitor(l) {
     // Inicializar o gerador de números aleatórios com a semente
     std::srand(semente);
 }

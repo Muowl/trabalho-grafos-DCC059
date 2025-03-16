@@ -243,7 +243,7 @@ void AlgoritmoRelativo::refinarComunidades() {
     std::cout << "Algoritmo Relativo: Iniciando refinamento..." << std::endl;
     
     // Para evitar múltiplas mensagens de log, calcular modularidade sem saída
-    float modularidadeAtual = avaliarQualidade();
+    float modularidadeInicial = avaliarQualidade();
     bool melhorou = true;
     int iteracao = 0;
     
@@ -302,7 +302,8 @@ void AlgoritmoRelativo::refinarComunidades() {
         
         // Calcular nova modularidade sem output
         float novaModularidade = grafo->getNumVertices() > 10000 ? 0.5f : avaliarQualidade();
-        std::cout << "Iteração " << iteracao << ": Avaliação = " << novaModularidade << std::endl;
+        std::cout << "Iteração " << iteracao << ": Avaliação = " << novaModularidade 
+                  << " (melhoria: " << (novaModularidade - modularidadeInicial) << ")" << std::endl;
         
         // NOVO: Remover comunidades vazias
         Vetor<Comunidade> comunidadesNaoVazias;
@@ -328,7 +329,7 @@ void AlgoritmoRelativo::refinarComunidades() {
         comunidades = comunidadesNaoVazias;
         
         // Atualiza modularidade atual
-        modularidadeAtual = novaModularidade;
+        modularidadeInicial = novaModularidade; // Use the variable to track progress between iterations
     }
     
     std::cout << "Algoritmo Relativo: Refinamento concluído após " << iteracao 

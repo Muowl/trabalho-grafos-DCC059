@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>  // para qsort
-#include "../include/vetor.h"  // Seu vetor personalizado
+#include "../include/vetor.h"  // vetor personalizado
 
 // Definindo um par simples para representar arestas
 struct Par {
@@ -30,7 +30,7 @@ int compararArestas(const void* a, const void* b) {
     return arestaA->segundo - arestaB->segundo;
 }
 
-int main() {
+int sanitizar() {
     // Nomes dos arquivos
     std::string arquivo_entrada = "../entradas/grafo.txt";
     std::string arquivo_saida = arquivo_entrada + "-sanitizado.txt";

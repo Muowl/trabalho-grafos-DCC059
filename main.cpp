@@ -1,9 +1,9 @@
-#include "leitura.h"
-#include "grafo_lista.h"
-#include "grafo_matriz.h"
-#include "algoritmo_guloso.h"
-#include "algoritmo_randomizado.h"
-#include "algoritmo_relativo.h"
+#include "./include/leitura.h"
+#include "./include/grafo_lista.h"
+#include "./include/grafo_matriz.h"
+#include "./include/algoritmo_guloso.h"
+#include "./include/algoritmo_randomizado.h"
+#include "./include/algoritmo_relativo.h"
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -31,7 +31,7 @@ void exibirAjuda();
 int main(int argc, char** argv) {
     // Valor padrão para o arquivo
     string arquivo_base = "grafo-teste.txt";
-    string diretorio_entradas = "../entradas/";
+    string diretorio_entradas = "./entradas/";
     string caminho_arquivo;
     bool usarMatriz = false;
     bool resolverProblema = false;

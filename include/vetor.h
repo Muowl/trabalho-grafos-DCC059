@@ -100,14 +100,20 @@ public:
             
             // Se precisarmos de mais espaço, realocar
             if (other.tamanho > capacidade) {
-                T* novoDados = (T*)realloc(dados, other.tamanho * sizeof(T));
+                // MODIFICADO: Não usar realloc para tipos complexos
+                // Alocar nova memória
+                T* novoDados = static_cast<T*>(malloc(other.tamanho * sizeof(T)));
                 if (novoDados) {
+                    // Liberar a memória antiga
+                    if (dados) {
+                        free(dados);
+                    }
                     dados = novoDados;
                     capacidade = other.tamanho;
                 } else if (other.tamanho > 0) {
                     // Falha na alocação - liberar tudo e começar do zero
                     free(dados);
-                    dados = (T*)malloc(other.tamanho * sizeof(T));
+                    dados = static_cast<T*>(malloc(other.tamanho * sizeof(T)));
                     if (dados) {
                         capacidade = other.tamanho;
                     } else {
