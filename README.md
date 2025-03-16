@@ -13,15 +13,15 @@ O trabalho está sendo desenvolvido e testado na ultima versão do Ubuntu (atrav
 ## Execução do programa (De acordo com o especificado no trabalho)
 - **Na pasta raiz do trabalho:**
 ```bash
-g++ -o main.out main.cpp sanitizador.cpp -I./include/ -g -Wall -Werror
+g++ -o main.out main.cpp src/*.cpp -I/.include/ -g -Wall -Werror
 ```
 
-- **Execução com Lista:**
+- **Execução com Lista (com resultado do time):**
 ```bash
-./ main.out -p -l grafo-testes.txt
+time ./main.out -p -l grafo-teste.txt
 ```
 
-- **Execução com Matriz:**
+- **Execução com Matriz (com resultado do time):**
 ```bash
-./ main.out -p -m grafo-testes.txt
+time ./main.out -p -m grafo-teste.txt
 ```
