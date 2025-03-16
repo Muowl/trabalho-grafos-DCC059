@@ -96,46 +96,11 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     if (!l.ler_arquivo_grafo(arquivo))
         return false;
     
-    // Coletar todos os IDs únicos dos nós
-    Vetor<int> ids_unicos;
-    const Vetor<EdgeData>& arestas = l.get_arestas_com_peso();
-    
-    for (int i = 0; i < arestas.size(); i++) {
-        // Verificar se o ID já existe no vetor
-        bool origem_existe = false;
-        bool destino_existe = false;
-        
-        for (int j = 0; j < ids_unicos.size(); j++) {
-            if (ids_unicos[j] == arestas[i].origem) {
-                origem_existe = true;
-            }
-            if (ids_unicos[j] == arestas[i].destino) {
-                destino_existe = true;
-            }
-        }
-        
-        if (!origem_existe) {
-            ids_unicos.push_back(arestas[i].origem);
-        }
-        if (!destino_existe) {
-            ids_unicos.push_back(arestas[i].destino);
-        }
-    }
-    
-    // Ordenar os IDs usando insertion sort
-    for (int i = 1; i < ids_unicos.size(); i++) {
-        int chave = ids_unicos[i];
-        int j = i - 1;
-        
-        while (j >= 0 && ids_unicos[j] > chave) {
-            ids_unicos[j + 1] = ids_unicos[j];
-            j--;
-        }
-        ids_unicos[j + 1] = chave;
-    }
+    // Use nos_presentes instead of creating our own ids_unicos vector
+    const Vetor<int>& nos_presentes = l.get_nos_presentes();
     
     // Atualizar o número de vértices para o número real de nós
-    num_vertices = ids_unicos.size();
+    num_vertices = nos_presentes.size();
     std::cout << "Grafo compactado: " << num_vertices << " nós efetivos (de " 
               << l.get_num_nos() << " possíveis IDs)" << std::endl;
     
@@ -146,7 +111,7 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     
     // Inicializar os nós
     for (int i = 0; i < num_vertices; i++) {
-        nos[i] = No(i, std::to_string(ids_unicos[i])); // guarda o ID original como string
+        nos[i] = No(i, std::to_string(nos_presentes[i])); // guarda o ID original como string
     }
     
     // Zerar a matriz de adjacência
@@ -157,16 +122,16 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     }
     
     // Função auxiliar de busca binária
-    auto buscar_indice = [&ids_unicos](int id) -> int {
+    auto buscar_indice = [&nos_presentes](int id) -> int {
         int esquerda = 0;
-        int direita = ids_unicos.size() - 1;
+        int direita = nos_presentes.size() - 1;
         
         while (esquerda <= direita) {
-            int meio = esquerda + (direita - esquerda) / 2;
-            if (ids_unicos[meio] == id) {
+            int meio = esquerda + (direita - direita) / 2;
+            if (nos_presentes[meio] == id) {
                 return meio;
             }
-            if (ids_unicos[meio] < id) {
+            if (nos_presentes[meio] < id) {
                 esquerda = meio + 1;
             } else {
                 direita = meio - 1;
@@ -176,6 +141,7 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
     };
     
     // Preencher a matriz usando o mapeamento
+    const Vetor<EdgeData>& arestas = l.get_arestas_com_peso();
     for (int i = 0; i < arestas.size(); i++) {
         int origem_idx = buscar_indice(arestas[i].origem);
         int destino_idx = buscar_indice(arestas[i].destino);
