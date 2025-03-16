@@ -8,10 +8,6 @@ GrafoMatriz::GrafoMatriz(int n, bool dir, bool pond, const std::string& nome)
     num_vertices = n;
     capacidade = n > 0 ? n : 10;
     
-    // Alocar apenas o suficiente para começar
-    // Para grafos grandes que serão carregados de arquivo, é melhor começar pequeno
-    capacidade = std::min(capacidade, 100); // Limitar tamanho inicial
-    
     nos = new No[capacidade];
     for (int i = 0; i < std::min(n, capacidade); i++) {
         nos[i] = No(i, std::to_string(0.0f));
@@ -127,7 +123,7 @@ bool GrafoMatriz::carregarDoArquivo(const std::string& arquivo) {
         int direita = nos_presentes.size() - 1;
         
         while (esquerda <= direita) {
-            int meio = esquerda + (direita - direita) / 2;
+            int meio = esquerda + (direita - esquerda) / 2;
             if (nos_presentes[meio] == id) {
                 return meio;
             }
