@@ -6,12 +6,10 @@
 #include "algoritmo_relativo.h"
 #include <iostream>
 #include <iomanip>
-#include <chrono>
 #include <string>
 #include <cstring>
 
 using namespace std;
-using namespace std::chrono;
 
 // Structure to hold algorithm results
 struct ResultadoAlgoritmo {
@@ -19,7 +17,6 @@ struct ResultadoAlgoritmo {
     int numComunidades;
     float modularidade;
     float densidadeMedia;
-    long long tempoExecucao;
     int tamanhoMedioComunidade;
     int maiorComunidade;
 };
@@ -129,15 +126,9 @@ ResultadoAlgoritmo executarAlgoritmoGuloso(Grafo* grafo, const leitura* leitor, 
     ResultadoAlgoritmo resultado;
     resultado.nome = "Guloso";
     
-    auto inicio = high_resolution_clock::now();
-    
     try {
         AlgoritmoGuloso algoritmo(grafo, 0.3f, 5);
         algoritmo.detectarComunidades();
-        
-        // Calcular tempo de execução
-        auto fim = high_resolution_clock::now();
-        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
         
         // Exibir resultados detalhados se solicitado
         if (exibirDetalhes) {
@@ -173,7 +164,6 @@ ResultadoAlgoritmo executarAlgoritmoGuloso(Grafo* grafo, const leitura* leitor, 
         resultado.numComunidades = 0;
         resultado.modularidade = 0.0f;
         resultado.densidadeMedia = 0.0f;
-        resultado.tempoExecucao = 0;
         resultado.tamanhoMedioComunidade = 0;
         resultado.maiorComunidade = 0;
     }
@@ -186,15 +176,9 @@ ResultadoAlgoritmo executarAlgoritmoRandomizado(Grafo* grafo, const leitura* lei
     ResultadoAlgoritmo resultado;
     resultado.nome = "Randomizado";
     
-    auto inicio = high_resolution_clock::now();
-    
     try {
         AlgoritmoRandomizado algoritmo(grafo, leitor, 0.5f, 3, time(0));
         algoritmo.detectarComunidades();
-        
-        // Calcular tempo de execução
-        auto fim = high_resolution_clock::now();
-        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
         
         // Exibir resultados detalhados se solicitado
         if (exibirDetalhes) {
@@ -230,7 +214,6 @@ ResultadoAlgoritmo executarAlgoritmoRandomizado(Grafo* grafo, const leitura* lei
         resultado.numComunidades = 0;
         resultado.modularidade = 0.0f;
         resultado.densidadeMedia = 0.0f;
-        resultado.tempoExecucao = 0;
         resultado.tamanhoMedioComunidade = 0;
         resultado.maiorComunidade = 0;
     }
@@ -243,15 +226,9 @@ ResultadoAlgoritmo executarAlgoritmoRelativo(Grafo* grafo, const leitura* leitor
     ResultadoAlgoritmo resultado;
     resultado.nome = "Relativo";
     
-    auto inicio = high_resolution_clock::now();
-    
     try {
         AlgoritmoRelativo algoritmo(grafo, AlgoritmoRelativo::GULOSO, 0.01f, 5, leitor);
         algoritmo.detectarComunidades();
-        
-        // Calcular tempo de execução
-        auto fim = high_resolution_clock::now();
-        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
         
         // Exibir resultados detalhados se solicitado
         if (exibirDetalhes) {
@@ -287,7 +264,6 @@ ResultadoAlgoritmo executarAlgoritmoRelativo(Grafo* grafo, const leitura* leitor
         resultado.numComunidades = 0;
         resultado.modularidade = 0.0f;
         resultado.densidadeMedia = 0.0f;
-        resultado.tempoExecucao = 0;
         resultado.tamanhoMedioComunidade = 0;
         resultado.maiorComunidade = 0;
     }
@@ -306,32 +282,22 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
     cout << setw(10) << "Comunidades" << " | ";
     cout << setw(12) << "Modularidade" << " | ";
     cout << setw(16) << "Densidade Média" << " | ";
-    cout << setw(8) << "Tempo(ms)" << " | ";
     cout << setw(13) << "Tamanho Médio" << " | ";
     cout << setw(10) << "Maior Com." << endl;
     
-    cout << string(90, '-') << endl;
+    cout << string(80, '-') << endl;
     
     for (int i = 0; i < numAlgoritmos; i++) {
         cout << left << setw(15) << resultados[i].nome << " | ";
         cout << setw(10) << resultados[i].numComunidades << " | ";
         cout << fixed << setprecision(4) << setw(12) << resultados[i].modularidade << " | ";
         cout << fixed << setprecision(4) << setw(16) << resultados[i].densidadeMedia << " | ";
-        cout << setw(8) << resultados[i].tempoExecucao << " | ";
         cout << setw(13) << resultados[i].tamanhoMedioComunidade << " | ";
         cout << setw(10) << resultados[i].maiorComunidade << endl;
     }
     
     // Análise dos resultados
     cout << "\nANÁLISE COMPARATIVA:" << endl;
-    
-    // Encontrar o algoritmo mais rápido
-    int idxMaisRapido = 0;
-    for (int i = 1; i < numAlgoritmos; i++) {
-        if (resultados[i].tempoExecucao < resultados[idxMaisRapido].tempoExecucao) {
-            idxMaisRapido = i;
-        }
-    }
     
     // Encontrar o algoritmo com maior modularidade
     int idxMelhorModularidade = 0;
@@ -349,14 +315,12 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
         }
     }
     
-    cout << "- Algoritmo mais rápido: " << resultados[idxMaisRapido].nome 
-         << " (" << resultados[idxMaisRapido].tempoExecucao << " ms)" << endl;
     cout << "- Algoritmo com maior modularidade: " << resultados[idxMelhorModularidade].nome 
          << " (" << fixed << setprecision(4) << resultados[idxMelhorModularidade].modularidade << ")" << endl;
     cout << "- Algoritmo com maior densidade: " << resultados[idxMelhorDensidade].nome 
          << " (" << fixed << setprecision(4) << resultados[idxMelhorDensidade].densidadeMedia << ")" << endl;
     
-    // Determinar algoritmo com melhor equilíbrio - vamos usar uma pontuação ponderada
+    // Determinar algoritmo com melhor equilíbrio - usando apenas modularidade e densidade
     int idxMelhorEquilibrio = 0;
     float pontuacaoMax = 0;
     
@@ -364,12 +328,9 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
         // Normalizar cada métrica entre 0 e 1 (quanto maior, melhor)
         float modNorm = resultados[i].modularidade / resultados[idxMelhorModularidade].modularidade;
         float densNorm = resultados[i].densidadeMedia / resultados[idxMelhorDensidade].densidadeMedia;
-        // Para tempo, quanto menor melhor, então invertemos
-        float tempoNorm = resultados[idxMaisRapido].tempoExecucao / 
-                           (resultados[i].tempoExecucao > 0 ? resultados[i].tempoExecucao : 1);
         
         // Pontuação ponderada (modularidade tem peso maior)
-        float pontuacao = (0.5 * modNorm) + (0.3 * densNorm) + (0.2 * tempoNorm);
+        float pontuacao = (0.6 * modNorm) + (0.4 * densNorm);
         
         if (pontuacao > pontuacaoMax) {
             pontuacaoMax = pontuacao;
@@ -378,8 +339,8 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
     }
     
     cout << "\nCONCLUSÃO:" << endl;
-    cout << "Com base nos resultados acima, o algoritmo com melhor equilíbrio entre qualidade" << endl;
-    cout << "(modularidade e densidade) e eficiência (tempo) é: " << resultados[idxMelhorEquilibrio].nome << endl;
+    cout << "Com base nos resultados acima, o algoritmo com melhor equilíbrio de qualidade" << endl;
+    cout << "(modularidade e densidade) é: " << resultados[idxMelhorEquilibrio].nome << endl;
 }
 
 // Função para imprimir resultados convertendo IDs compactos para IDs originais
