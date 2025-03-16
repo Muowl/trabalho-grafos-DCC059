@@ -11,56 +11,233 @@
 using namespace std;
 using namespace std::chrono;
 
-void testarDeteccaoComunidades(GrafoLista& grafo, const leitura& leitor);
-void testarDeteccaoComunidadesMatriz(GrafoMatriz& grafo, const leitura& leitor);
+// Structure to hold algorithm results
+struct ResultadoAlgoritmo {
+    string nome;
+    int numComunidades;
+    float modularidade;
+    float densidadeMedia;
+    long long tempoExecucao;
+    int tamanhoMedioComunidade;
+    int maiorComunidade;
+};
+
 void imprimirResultadosComIdsOriginais(const DetectorComunidades& detector, const Vetor<int>& nosPresentes);
+ResultadoAlgoritmo executarAlgoritmoGuloso(Grafo* grafo, const leitura* leitor, bool exibirDetalhes = true);
+ResultadoAlgoritmo executarAlgoritmoRandomizado(Grafo* grafo, const leitura* leitor, bool exibirDetalhes = true);
+ResultadoAlgoritmo executarAlgoritmoRelativo(Grafo* grafo, const leitura* leitor, bool exibirDetalhes = true);
+void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos);
 
 int main(int argc, char** argv) {
-    string arquivo = "../entradas/grafo.txt";
+    string arquivo = "../entradas/grafo-teste.txt";
+    if (argc > 1) {
+        arquivo = argv[1];
+    }
     
-    cout << "Inicializando grafo a partir do arquivo: " << arquivo << endl;
+    cout << "ANÁLISE DE COMUNIDADES EM GRAFOS" << endl;
+    cout << "=================================" << endl;
+    cout << "Carregando grafo do arquivo: " << arquivo << endl;
     
     // Criar grafo usando listas de adjacência
     leitura leitor(arquivo);
     
-    // Exibir informações sobre nós presentes
-    leitor.exibir_nos_presentes();
-    
-    // Verificar a presença de alguns nós específicos
-    cout << "\nVerificação de nós específicos:" << endl;
-    cout << "Nó 0 está presente? " << (leitor.no_esta_presente(0) ? "Sim" : "Não") << endl;
-    cout << "Nó 1 está presente? " << (leitor.no_esta_presente(1) ? "Sim" : "Não") << endl;
-    cout << "Nó 2 está presente? " << (leitor.no_esta_presente(2) ? "Sim" : "Não") << endl;
-    cout << "Nó 3 está presente? " << (leitor.no_esta_presente(3) ? "Sim" : "Não") << endl;
-    cout << "Nó 11342 está presente? " << (leitor.no_esta_presente(11342) ? "Sim" : "Não") << endl;
-    
-    // Restante do código para construir grafo e testar algoritmos...
-    
     int numNos = leitor.get_num_nos();
     cout << "Número de nós total: " << numNos << endl;
     
-    // Coletar estatísticas básicas
-    resultado.numComunidades = algoritmo->getNumComunidades();
-    resultado.modularidade = algoritmo->avaliarQualidade();
+    // Adicionar esta linha para mostrar a informação uma única vez
+    cout << "Número de arestas: " << leitor.get_arestas_com_peso().size() << endl;
     
-    // Calcular densidade média e tamanho médio
-    float densidade = 0.0f;
-    int totalVertices = 0;
-    int maxTamanho = 0;
+    // Criar e carregar grafo lista
+    GrafoLista grafo(numNos, false, true, "Grafo de Comunidades");
+    grafo.carregarDoArquivo(arquivo);
     
-    const Vetor<Comunidade>& comunidades = algoritmo->getComunidades();
-    for (int i = 0; i < comunidades.size(); i++) {
-        const Comunidade& c = comunidades[i];
-        densidade += c.calcularDensidade(algoritmo->getGrafo());
-        totalVertices += c.getTamanho();
-        if (c.getTamanho() > maxTamanho) {
-            maxTamanho = c.getTamanho();
+    cout << "\nPreparando para executar algoritmos de detecção de comunidades..." << endl;
+    
+    // Executar os três algoritmos e coletar resultados
+    ResultadoAlgoritmo resultados[3];
+    
+    cout << "\nExecutando Algoritmo Guloso..." << endl;
+    resultados[0] = executarAlgoritmoGuloso(&grafo, &leitor);
+    
+    cout << "\nExecutando Algoritmo Randomizado..." << endl;
+    resultados[1] = executarAlgoritmoRandomizado(&grafo, &leitor);
+    
+    cout << "\nExecutando Algoritmo Relativo..." << endl;
+    resultados[2] = executarAlgoritmoRelativo(&grafo, &leitor);
+    
+    // Exibir comparação dos algoritmos
+    compararAlgoritmos(resultados, 3);
+    
+    return 0;
+}
+
+// Função para executar algoritmo guloso e coletar métricas
+ResultadoAlgoritmo executarAlgoritmoGuloso(Grafo* grafo, const leitura* leitor, bool exibirDetalhes) {
+    ResultadoAlgoritmo resultado;
+    resultado.nome = "Guloso";
+    
+    auto inicio = high_resolution_clock::now();
+    
+    try {
+        AlgoritmoGuloso algoritmo(grafo, 0.3f, 5);
+        algoritmo.detectarComunidades();
+        
+        // Calcular tempo de execução
+        auto fim = high_resolution_clock::now();
+        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
+        
+        // Exibir resultados detalhados se solicitado
+        if (exibirDetalhes) {
+            cout << "Algoritmo Guloso: Identificadas " << algoritmo.getNumComunidades() << " comunidades." << endl;
+            imprimirResultadosComIdsOriginais(algoritmo, leitor->get_nos_presentes());
         }
+        
+        // Coletar métricas
+        resultado.numComunidades = algoritmo.getNumComunidades();
+        resultado.modularidade = algoritmo.avaliarQualidade();
+        
+        // Calcular densidade média e tamanho
+        float densidade = 0.0f;
+        int totalVertices = 0;
+        int maxTamanho = 0;
+        
+        const Vetor<Comunidade>& comunidades = algoritmo.getComunidades();
+        for (int i = 0; i < comunidades.size(); i++) {
+            const Comunidade& c = comunidades[i];
+            densidade += c.calcularDensidade(algoritmo.getGrafo());
+            totalVertices += c.getTamanho();
+            if (c.getTamanho() > maxTamanho) {
+                maxTamanho = c.getTamanho();
+            }
+        }
+        
+        resultado.densidadeMedia = comunidades.size() > 0 ? densidade / comunidades.size() : 0.0f;
+        resultado.tamanhoMedioComunidade = comunidades.size() > 0 ? totalVertices / comunidades.size() : 0;
+        resultado.maiorComunidade = maxTamanho;
+        
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo guloso: " << e.what() << endl;
+        resultado.numComunidades = 0;
+        resultado.modularidade = 0.0f;
+        resultado.densidadeMedia = 0.0f;
+        resultado.tempoExecucao = 0;
+        resultado.tamanhoMedioComunidade = 0;
+        resultado.maiorComunidade = 0;
     }
     
-    resultado.densidadeMedia = comunidades.size() > 0 ? densidade / comunidades.size() : 0.0f;
-    resultado.tamanhoMedioComunidade = comunidades.size() > 0 ? totalVertices / comunidades.size() : 0;
-    resultado.maiorComunidade = maxTamanho;
+    return resultado;
+}
+
+// Função para executar algoritmo randomizado e coletar métricas
+ResultadoAlgoritmo executarAlgoritmoRandomizado(Grafo* grafo, const leitura* leitor, bool exibirDetalhes) {
+    ResultadoAlgoritmo resultado;
+    resultado.nome = "Randomizado";
+    
+    auto inicio = high_resolution_clock::now();
+    
+    try {
+        AlgoritmoRandomizado algoritmo(grafo, leitor, 0.5f, 3, time(0));
+        algoritmo.detectarComunidades();
+        
+        // Calcular tempo de execução
+        auto fim = high_resolution_clock::now();
+        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
+        
+        // Exibir resultados detalhados se solicitado
+        if (exibirDetalhes) {
+            cout << "Algoritmo Randomizado: Criadas " << algoritmo.getNumComunidades() << " comunidades." << endl;
+            imprimirResultadosComIdsOriginais(algoritmo, leitor->get_nos_presentes());
+        }
+        
+        // Coletar métricas
+        resultado.numComunidades = algoritmo.getNumComunidades();
+        resultado.modularidade = algoritmo.avaliarQualidade();
+        
+        // Calcular densidade média e tamanho
+        float densidade = 0.0f;
+        int totalVertices = 0;
+        int maxTamanho = 0;
+        
+        const Vetor<Comunidade>& comunidades = algoritmo.getComunidades();
+        for (int i = 0; i < comunidades.size(); i++) {
+            const Comunidade& c = comunidades[i];
+            densidade += c.calcularDensidade(algoritmo.getGrafo());
+            totalVertices += c.getTamanho();
+            if (c.getTamanho() > maxTamanho) {
+                maxTamanho = c.getTamanho();
+            }
+        }
+        
+        resultado.densidadeMedia = comunidades.size() > 0 ? densidade / comunidades.size() : 0.0f;
+        resultado.tamanhoMedioComunidade = comunidades.size() > 0 ? totalVertices / comunidades.size() : 0;
+        resultado.maiorComunidade = maxTamanho;
+        
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo randomizado: " << e.what() << endl;
+        resultado.numComunidades = 0;
+        resultado.modularidade = 0.0f;
+        resultado.densidadeMedia = 0.0f;
+        resultado.tempoExecucao = 0;
+        resultado.tamanhoMedioComunidade = 0;
+        resultado.maiorComunidade = 0;
+    }
+    
+    return resultado;
+}
+
+// Função para executar algoritmo relativo e coletar métricas
+ResultadoAlgoritmo executarAlgoritmoRelativo(Grafo* grafo, const leitura* leitor, bool exibirDetalhes) {
+    ResultadoAlgoritmo resultado;
+    resultado.nome = "Relativo";
+    
+    auto inicio = high_resolution_clock::now();
+    
+    try {
+        AlgoritmoRelativo algoritmo(grafo, AlgoritmoRelativo::GULOSO, 0.01f, 5, leitor);
+        algoritmo.detectarComunidades();
+        
+        // Calcular tempo de execução
+        auto fim = high_resolution_clock::now();
+        resultado.tempoExecucao = duration_cast<milliseconds>(fim - inicio).count();
+        
+        // Exibir resultados detalhados se solicitado
+        if (exibirDetalhes) {
+            cout << "Algoritmo Relativo: Detectou " << algoritmo.getNumComunidades() << " comunidades." << endl;
+            imprimirResultadosComIdsOriginais(algoritmo, leitor->get_nos_presentes());
+        }
+        
+        // Coletar métricas
+        resultado.numComunidades = algoritmo.getNumComunidades();
+        resultado.modularidade = algoritmo.avaliarQualidade();
+        
+        // Calcular densidade média e tamanho
+        float densidade = 0.0f;
+        int totalVertices = 0;
+        int maxTamanho = 0;
+        
+        const Vetor<Comunidade>& comunidades = algoritmo.getComunidades();
+        for (int i = 0; i < comunidades.size(); i++) {
+            const Comunidade& c = comunidades[i];
+            densidade += c.calcularDensidade(algoritmo.getGrafo());
+            totalVertices += c.getTamanho();
+            if (c.getTamanho() > maxTamanho) {
+                maxTamanho = c.getTamanho();
+            }
+        }
+        
+        resultado.densidadeMedia = comunidades.size() > 0 ? densidade / comunidades.size() : 0.0f;
+        resultado.tamanhoMedioComunidade = comunidades.size() > 0 ? totalVertices / comunidades.size() : 0;
+        resultado.maiorComunidade = maxTamanho;
+        
+    } catch (const std::exception& e) {
+        cerr << "Erro no algoritmo relativo: " << e.what() << endl;
+        resultado.numComunidades = 0;
+        resultado.modularidade = 0.0f;
+        resultado.densidadeMedia = 0.0f;
+        resultado.tempoExecucao = 0;
+        resultado.tamanhoMedioComunidade = 0;
+        resultado.maiorComunidade = 0;
+    }
     
     return resultado;
 }
@@ -119,186 +296,37 @@ void compararAlgoritmos(const ResultadoAlgoritmo resultados[], int numAlgoritmos
         }
     }
     
-    if (!temAdjacente) {
-        cout << "(nenhum adjacente de entrada)";
-    }
-    cout << endl;
+    cout << "- Algoritmo mais rápido: " << resultados[idxMaisRapido].nome 
+         << " (" << resultados[idxMaisRapido].tempoExecucao << " ms)" << endl;
+    cout << "- Algoritmo com maior modularidade: " << resultados[idxMelhorModularidade].nome 
+         << " (" << fixed << setprecision(4) << resultados[idxMelhorModularidade].modularidade << ")" << endl;
+    cout << "- Algoritmo com maior densidade: " << resultados[idxMelhorDensidade].nome 
+         << " (" << fixed << setprecision(4) << resultados[idxMelhorDensidade].densidadeMedia << ")" << endl;
     
-    // Encontrar e exibir o nó com maior grau entre os adicionados
-    cout << "\nBuscando nó com maior grau (entre nós 0 e 1):" << endl;
-    No noMaiorGrau = grafo.getNoComMaiorGrauLimitado(2); // Limitar a busca para evitar problemas de performance
-    if (noMaiorGrau.getId() != -1) {
-        cout << "Nó com maior grau: " << noMaiorGrau.getId() 
-             << " (Grau: " << noMaiorGrau.getGrau() << ")" << endl;
-    } else {
-        cout << "Nenhum nó com conexões encontrado." << endl;
-    }
+    // Determinar algoritmo com melhor equilíbrio - vamos usar uma pontuação ponderada
+    int idxMelhorEquilibrio = 0;
+    float pontuacaoMax = 0;
     
-    // Modificação no teste com matriz de adjacências
-    cout << "\nTeste usando a implementação do grafo ponderado com matriz de adjacências:" << endl;
-
-    // Criar grafo com tamanho inicial pequeno e carregar do arquivo (compactado)
-    GrafoMatriz grafoMatriz(10, false, true, "Grafo AGMG - Matriz"); // Tamanho inicial pequeno
-    if (grafoMatriz.carregarDoArquivo(arquivo)) {
-        cout << "Grafo carregado com sucesso usando representação compacta" << endl;
+    for (int i = 0; i < numAlgoritmos; i++) {
+        // Normalizar cada métrica entre 0 e 1 (quanto maior, melhor)
+        float modNorm = resultados[i].modularidade / resultados[idxMelhorModularidade].modularidade;
+        float densNorm = resultados[i].densidadeMedia / resultados[idxMelhorDensidade].densidadeMedia;
+        // Para tempo, quanto menor melhor, então invertemos
+        float tempoNorm = resultados[idxMaisRapido].tempoExecucao / 
+                           (resultados[i].tempoExecucao > 0 ? resultados[i].tempoExecucao : 1);
         
-        // Verificar e mostrar adjacências do nó 0 
-        cout << "Nó 0 -> ";
-        temAdjacente = false;
+        // Pontuação ponderada (modularidade tem peso maior)
+        float pontuacao = (0.5 * modNorm) + (0.3 * densNorm) + (0.2 * tempoNorm);
         
-        for (int j = 0; j < grafoMatriz.getNumVertices(); j++) {
-            // Note: Aqui estamos trabalhando com o índice compacto, não com o ID original
-            if (grafoMatriz.existeAresta(0, j)) {
-                float peso = grafoMatriz.getPesoAresta(0, j);
-                cout << j << "(peso:" << fixed << setprecision(1) << peso << ") ";
-                temAdjacente = true;
-            }
+        if (pontuacao > pontuacaoMax) {
+            pontuacaoMax = pontuacao;
+            idxMelhorEquilibrio = i;
         }
-        
-        if (!temAdjacente) {
-            cout << "(nenhum adjacente)";
-        }
-        cout << endl;
-    } else {
-        cout << "Erro ao carregar o grafo do arquivo." << endl;
     }
     
-    testarDeteccaoComunidades(grafo, leitor);
-    
-    // Teste usando GrafoLista
-    cout << "\n===== TESTES COM GRAFO LISTA =====" << endl;
-    GrafoLista grafoLista(leitor.get_num_nos(), false, true, "Grafo Lista");
-    grafoLista.carregarDoArquivo(arquivo);
-    testarDeteccaoComunidades(grafoLista, leitor);
-    
-    // Teste usando GrafoMatriz - Mudei o nome da variável para evitar redeclaração
-    cout << "\n===== TESTES COM GRAFO MATRIZ =====" << endl;
-    GrafoMatriz grafoMatrizTestes(leitor.get_num_nos(), false, true, "Grafo Matriz");
-    grafoMatrizTestes.carregarDoArquivo(arquivo);
-    testarDeteccaoComunidadesMatriz(grafoMatrizTestes, leitor);
-    
-    return 0;
-}
-
-// Implementar testes para algoritmos de detecção de comunidades
-void testarDeteccaoComunidades(GrafoLista& grafo, const leitura& leitor) {
-    cout << "\n=====================================================" << endl;
-    cout << "TESTES DE ALGORITMOS DE DETECÇÃO DE COMUNIDADES" << endl;
-    cout << "=====================================================" << endl;
-    
-    // Verificar se o grafo é muito grande para análise completa
-    if (grafo.getNumVertices() > 100000) {
-        cout << "AVISO: Grafo muito grande (" << grafo.getNumVertices() 
-             << " vértices), os algoritmos usarão abordagens ultrasseguras." << endl;
-    }
-    
-    try {
-        // Teste do algoritmo guloso com abordagem ultrassegura
-        cout << "\n----- Algoritmo Guloso -----" << endl;
-        auto inicioGuloso = high_resolution_clock::now();
-        
-        // Limite extremamente reduzido para 5 nós apenas
-        AlgoritmoGuloso guloso(&grafo, 0.3f, 5);  
-        guloso.detectarComunidades();
-        guloso.imprimirResultados();
-        
-        auto fimGuloso = high_resolution_clock::now();
-        auto duracaoGuloso = duration_cast<milliseconds>(fimGuloso - inicioGuloso);
-        cout << "Tempo de execução: " << duracaoGuloso.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo guloso: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo guloso" << endl;
-    }
-    
-    try {
-        // Teste do algoritmo randomizado - passando o leitor
-        cout << "\n----- Algoritmo Randomizado -----" << endl;
-        auto inicioRandom = high_resolution_clock::now();
-        AlgoritmoRandomizado randomizado(&grafo, &leitor, 0.5f, 3, time(0));
-        randomizado.detectarComunidades();
-        randomizado.imprimirResultados();
-        auto fimRandom = high_resolution_clock::now();
-        auto duracaoRandom = duration_cast<milliseconds>(fimRandom - inicioRandom);
-        cout << "Tempo de execução: " << duracaoRandom.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo randomizado: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo randomizado" << endl;
-    }
-    
-    try {
-        // Teste do algoritmo relativo - passando o leitor
-        cout << "\n----- Algoritmo Relativo -----" << endl;
-        auto inicioRelativo = high_resolution_clock::now();
-        AlgoritmoRelativo relativo(&grafo, AlgoritmoRelativo::GULOSO, 0.01f, 5, &leitor);
-        relativo.detectarComunidades();
-        relativo.imprimirResultados();
-        auto fimRelativo = high_resolution_clock::now();
-        auto duracaoRelativo = duration_cast<milliseconds>(fimRelativo - inicioRelativo);
-        cout << "Tempo de execução: " << duracaoRelativo.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo relativo: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo relativo" << endl;
-    }
-}
-
-// Implementar testes para algoritmos de detecção de comunidades usando GrafoMatriz
-void testarDeteccaoComunidadesMatriz(GrafoMatriz& grafo, const leitura& leitor) {
-    try {
-        // Teste do algoritmo guloso
-        cout << "\n----- Algoritmo Guloso (Matriz) -----" << endl;
-        auto inicioGuloso = high_resolution_clock::now();
-        AlgoritmoGuloso guloso(&grafo, 0.3f, 5);  
-        guloso.detectarComunidades();
-        // Usar a função customizada para exibir os resultados com IDs originais
-        imprimirResultadosComIdsOriginais(guloso, leitor.get_nos_presentes());
-        
-        auto fimGuloso = high_resolution_clock::now();
-        auto duracaoGuloso = duration_cast<milliseconds>(fimGuloso - inicioGuloso);
-        cout << "Tempo de execução: " << duracaoGuloso.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo guloso: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo guloso" << endl;
-    }
-    
-    try {
-        // Teste do algoritmo randomizado - passando o leitor
-        cout << "\n----- Algoritmo Randomizado (Matriz) -----" << endl;
-        auto inicioRandom = high_resolution_clock::now();
-        AlgoritmoRandomizado randomizado(&grafo, &leitor, 0.5f, 3, time(0));
-        randomizado.detectarComunidades();
-        // Usar a função customizada para exibir os resultados com IDs originais
-        imprimirResultadosComIdsOriginais(randomizado, leitor.get_nos_presentes());
-        
-        auto fimRandom = high_resolution_clock::now();
-        auto duracaoRandom = duration_cast<milliseconds>(fimRandom - inicioRandom);
-        cout << "Tempo de execução: " << duracaoRandom.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo randomizado: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo randomizado" << endl;
-    }
-    
-    try {
-        // Teste do algoritmo relativo - passando o leitor
-        cout << "\n----- Algoritmo Relativo (Matriz) -----" << endl;
-        auto inicioRelativo = high_resolution_clock::now();
-        AlgoritmoRelativo relativo(&grafo, AlgoritmoRelativo::GULOSO, 0.01f, 5, &leitor);
-        relativo.detectarComunidades();
-        // Usar a função customizada para exibir os resultados com IDs originais
-        imprimirResultadosComIdsOriginais(relativo, leitor.get_nos_presentes());
-        
-        auto fimRelativo = high_resolution_clock::now();
-        auto duracaoRelativo = duration_cast<milliseconds>(fimRelativo - inicioRelativo);
-        cout << "Tempo de execução: " << duracaoRelativo.count() << " ms" << endl;
-    } catch (const std::exception& e) {
-        cerr << "Erro no algoritmo relativo: " << e.what() << endl;
-    } catch (...) {
-        cerr << "Erro desconhecido no algoritmo relativo" << endl;
-    }
+    cout << "\nCONCLUSÃO:" << endl;
+    cout << "Com base nos resultados acima, o algoritmo com melhor equilíbrio entre qualidade" << endl;
+    cout << "(modularidade e densidade) e eficiência (tempo) é: " << resultados[idxMelhorEquilibrio].nome << endl;
 }
 
 // Função para imprimir resultados convertendo IDs compactos para IDs originais

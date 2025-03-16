@@ -49,6 +49,9 @@ bool leitura::ler_arquivo_grafo(const std::string &filename)
     // O número de nós será o maior ID + 1 (assumindo que os IDs começam em 0)
     num_nos = max_no_id + 1;
 
+    // Mostrar número de arestas lidas
+    std::cout << "Lidas " << arestas.size() << " arestas do arquivo." << std::endl;
+
     arquivo.close();
     return true;
 }
@@ -160,5 +163,6 @@ void leitura::gerar_pesos_sinteticos() {
         arestas_com_peso.push_back(EdgeData(origem, destino, peso));
     }
     
-    std::cout << "Pesos sintéticos gerados para " << arestas_com_peso.size() << " arestas." << std::endl;
+    // Informação sobre pesos gerados
+    std::cout << "Pesos sintéticos gerados para todas as arestas." << std::endl;
 }

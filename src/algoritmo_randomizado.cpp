@@ -93,15 +93,12 @@ void AlgoritmoRandomizado::detectarComunidades() {
         // Atualizar comunidades
         comunidades = comunidadesValidas;
         
-        std::cout << "Algoritmo Randomizado: Criadas " << comunidades.size() 
-                  << " comunidades com abordagem simplificada." << std::endl;
     }
     else {
         // Abordagem completa para grafos menores
         inicializarComunidades();
         expandirComunidades();
         
-        std::cout << "Algoritmo Randomizado: Criadas " << comunidades.size() << " comunidades." << std::endl;
     }
 }
 

@@ -63,9 +63,6 @@ void AlgoritmoGuloso::detectarComunidades() {
             atribuicaoVertices[0] = 0;
             std::cout << "Algoritmo Guloso: Criada uma comunidade de demonstração com " 
                       << comunidades[0].getTamanho() << " vértices." << std::endl;
-        } else {
-            std::cout << "Algoritmo Guloso: Criadas " << comunidades.size() 
-                      << " comunidades com abordagem simplificada." << std::endl;
         }
     }
     else {
@@ -173,8 +170,6 @@ void AlgoritmoGuloso::detectarComunidades() {
                 idComunidade++;
             }
         }
-        
-        std::cout << "Algoritmo Guloso: Identificadas " << comunidades.size() << " comunidades." << std::endl;
     }
 }
 
