@@ -32,4 +32,7 @@ private:
     
     // Calcula ganho de modularidade ao mover vértice v para comunidade c
     float calcularGanhoModularidade(int vertice, int comunidadeOriginal, int comunidadeDestino) const;
+    
+    // Obtém comunidades vizinhas de um vértice
+    void obterComunidadesVizinhas(int vertice, Vetor<int>& comunidadesVizinhas, int limite);
 };

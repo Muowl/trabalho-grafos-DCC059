@@ -36,19 +36,24 @@ public:
     }
 
     Vetor<No> getNodesComGrau() const {
+        // CORRIGIDO: Inicializar e gerenciar objetos No corretamente
         Vetor<No> nos;
+        nos.resize(num_vertices); // Pré-alocar espaço para todos os vértices
         
         for (int i = 0; i < num_vertices; i++) {
+            // Criar um objeto No adequado
             No no(i);
             int grau = calcularGrau(i);
             no.setGrau(grau);
-            nos.push_back(no);
+            
+            // Atribuir ao espaço pré-alocado
+            nos[i] = no;
         }
         
         return nos;
     }
 
-    //Implementação para buscar o nó com maior grau, sem limite, mais custoso em tempo de execução
+    // Implementação para buscar o nó com maior grau, sem limite, mais custoso em tempo de execução
     No getNoComMaiorGrau() const {
         int maxGrau = -1;
         int idNoMaiorGrau = -1;
@@ -70,7 +75,7 @@ public:
         return resultado;
     }
     
-    //Observação: para implementação final vamos usar o limitado para evitar problemas de desempenho
+    // Observação: para implementação final vamos usar o limitado para evitar problemas de desempenho
     No getNoComMaiorGrauLimitado(int limite) const {
         int maxGrau = -1;
         int idNoMaiorGrau = -1;

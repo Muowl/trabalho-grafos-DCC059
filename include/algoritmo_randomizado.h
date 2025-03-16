@@ -33,4 +33,7 @@ private:
     
     // Função que gera um valor aleatório entre 0 e 1
     float gerarNumeroAleatorio() const;
+    
+    // Adiciona vizinhos diretos de um vértice à mesma comunidade
+    void adicionarVizinhosDiretos(int vertice, int comunidade);
 };

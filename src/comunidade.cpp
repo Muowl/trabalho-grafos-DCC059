@@ -5,21 +5,20 @@
 // Implementação da classe Comunidade
 Comunidade::Comunidade(int id) : id(id) {}
 
-// Implementação do construtor de cópia
+// Construtor de cópia cuidadosamente implementado
 Comunidade::Comunidade(const Comunidade& other) : id(other.id) {
-    // vertices é inicializado automaticamente através do construtor padrão
-    // Cópia profunda dos vértices - um por um para evitar problemas de atribuição
+    // Vamos criar os vértices um por um para evitar problemas de memória
     for (int i = 0; i < other.vertices.size(); i++) {
         vertices.push_back(other.vertices[i]);
     }
 }
 
-// Implementação do operador de atribuição
+// Operador de atribuição cuidadosamente implementado
 Comunidade& Comunidade::operator=(const Comunidade& other) {
     if (this != &other) {
         id = other.id;
         
-        // Limpar os vértices existentes
+        // Limpar vértices existentes
         vertices.clear();
         
         // Copiar vértices um por um
@@ -51,17 +50,15 @@ int Comunidade::getId() const {
     return id;
 }
 
-// Retorna uma cópia em vez de uma referência
 Vetor<int> Comunidade::getVertices() const {
-    return vertices;  // Cria uma cópia
+    return vertices;  // Retorna uma cópia do vetor
 }
 
-// Adiciona um método mais seguro para obter vértices individuais
 int Comunidade::getVertice(int index) const {
     if (index >= 0 && index < vertices.size()) {
         return vertices[index];
     }
-    return -1;  // ID de vértice inválido
+    return -1;  // Valor inválido para índice fora dos limites
 }
 
 float Comunidade::calcularDensidade(const Grafo* grafo) const {

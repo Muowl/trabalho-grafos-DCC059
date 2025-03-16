@@ -12,7 +12,6 @@ private:
     
 public:
     Comunidade(int id = -1);
-    // Add copy constructor and assignment operator
     Comunidade(const Comunidade& other);
     Comunidade& operator=(const Comunidade& other);
     
@@ -21,11 +20,20 @@ public:
     int getTamanho() const;
     int getId() const;
     
-    // Return a copy of vertices instead of a reference to avoid use-after-free
     Vetor<int> getVertices() const;
-    
-    // Get vertex at specific index (safer than returning the whole vector)
     int getVertice(int index) const;
+    
+    // Método otimizado para remover vértice sem vazamentos de memória
+    void removerVertice(int indice) {
+        if (indice >= 0 && indice < vertices.size()) {
+            // Move o último elemento para a posição do removido
+            if (indice < vertices.size() - 1) {
+                vertices[indice] = vertices[vertices.size() - 1];
+            }
+            // Reduz o tamanho sem alocar nova memória
+            vertices.resize(vertices.size() - 1);
+        }
+    }
     
     // Calcular densidade interna da comunidade
     float calcularDensidade(const Grafo* grafo) const;
@@ -52,6 +60,9 @@ public:
     int getNumComunidades() const;
     const Vetor<Comunidade>& getComunidades() const;
     int getComunidadeDoVertice(int vertice) const;
+    
+    // Método para acessar o grafo (adicionado para permitir análise)
+    const Grafo* getGrafo() const { return grafo; }
     
     // Avalia a qualidade da detecção
     float avaliarQualidade() const;

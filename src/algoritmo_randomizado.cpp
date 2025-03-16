@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdlib>
 
+
 AlgoritmoRandomizado::AlgoritmoRandomizado(const Grafo* g, const leitura* l, float probabilidadeConexao, 
                                          int numComunidadesAlvo, int semente)
     : DetectorComunidades(g), 
@@ -18,82 +19,108 @@ void AlgoritmoRandomizado::detectarComunidades() {
     comunidades.clear();
     atribuicaoVertices.clear();
     
-    std::cout << "Algoritmo Randomizado: Analisando grafo de forma ultra limitada." << std::endl;
-    
     // Verificação de segurança - não prosseguir se o grafo estiver vazio
     if (!grafo || grafo->getNumVertices() <= 0) {
         std::cout << "Algoritmo Randomizado: Grafo vazio ou inválido." << std::endl;
         return;
     }
     
-    // Para grafos muito grandes, criar apenas uma pequena comunidade de demonstração
+    // Redimensionar vetor de atribuição para todos os vértices
+    atribuicaoVertices.resize(grafo->getNumVertices(), -1);
+    
+    // Para grafos muito grandes, usar abordagem simplificada
     if (grafo->getNumVertices() > 10000) {
-        std::cout << "Algoritmo Randomizado: Grafo muito grande (" << grafo->getNumVertices() 
-                  << " vértices), usando abordagem ultrassegura." << std::endl;
+        std::cout << "Algoritmo Randomizado: Grafo grande (" << grafo->getNumVertices() 
+                  << " vértices), usando abordagem simplificada." << std::endl;
         
-        // Criar uma comunidade de demonstração com até 3 nós aleatórios
-        Comunidade comunidadeDemo(0);
+        // Número de comunidades e tamanho de amostragem
+        int comunidadesAlvo = std::min(this->numComunidadesAlvo, 10);
+        int tamanhoAmostra = std::min(3000, grafo->getNumVertices());
         
-        // Adicionar o nó 0 como base
-        comunidadeDemo.adicionarVertice(0);
+        // Inicializar comunidades
+        for (int i = 0; i < comunidadesAlvo; i++) {
+            Comunidade novaComunidade(i);
+            comunidades.push_back(novaComunidade);
+        }
         
-        // Adicionar até 2 nós extras se possível usando o leitor
-        if (leitor) {
-            const Vetor<int>& nosPresentesVetor = leitor->get_nos_presentes();
-            if (nosPresentesVetor.size() > 0) {
-                int indice1 = std::rand() % nosPresentesVetor.size();
-                comunidadeDemo.adicionarVertice(nosPresentesVetor[indice1]);
+        // Distribuir vértices de amostra aleatoriamente
+        int verticesAdicionados = 0;
+        for (int i = 0; i < tamanhoAmostra && verticesAdicionados < 500; i++) {
+            // Sortear um nó aleatório
+            int vertice;
+            if (i % 10 == 0) { 
+                // A cada 10 iterações, tente um nó aleatório global
+                vertice = sortearNoAleatorio();
+            } else { 
+                // Nos outros casos, use os índices sequenciais com saltos
+                vertice = (i * 97) % grafo->getNumVertices(); // Multiplicar por primo para distribuição
+            }
+            
+            // Sortear uma comunidade aleatória
+            int comunidade = std::rand() % comunidadesAlvo;
+            
+            // Adicionar o vértice à comunidade se não estiver atribuído
+            if (vertice >= 0 && vertice < grafo->getNumVertices() && 
+                comunidade >= 0 && comunidade < comunidades.size() && 
+                atribuicaoVertices[vertice] == -1) {
                 
-                if (nosPresentesVetor.size() > 1) {
-                    int indice2;
-                    do {
-                        indice2 = std::rand() % nosPresentesVetor.size();
-                    } while (indice2 == indice1);
-                    
-                    comunidadeDemo.adicionarVertice(nosPresentesVetor[indice2]);
+                comunidades[comunidade].adicionarVertice(vertice);
+                atribuicaoVertices[vertice] = comunidade;
+                verticesAdicionados++;
+                
+                // Tentar adicionar vizinhos diretos
+                if (i % 3 == 0) { // A cada 3 iterações
+                    adicionarVizinhosDiretos(vertice, comunidade);
                 }
             }
         }
         
-        // Adicionar a comunidade ao vetor
-        comunidades.push_back(comunidadeDemo);
+        // Remover comunidades vazias
+        Vetor<Comunidade> comunidadesValidas;
+        for (int i = 0; i < comunidades.size(); i++) {
+            if (comunidades[i].getTamanho() > 0) {
+                comunidadesValidas.push_back(comunidades[i]);
+            }
+        }
         
-        // Criar um vetor de atribuição mínimo (apenas para os nós na comunidade)
-        atribuicaoVertices.resize(1, 0);
+        // Garantir pelo menos uma comunidade
+        if (comunidadesValidas.size() == 0) {
+            Comunidade comunidadeDemo(0);
+            comunidadeDemo.adicionarVertice(0);
+            comunidadesValidas.push_back(comunidadeDemo);
+        }
         
-        std::cout << "Algoritmo Randomizado: Criada uma comunidade de demonstração com " 
-                  << comunidadeDemo.getTamanho() << " vértices." << std::endl;
-        return;
+        // Atualizar comunidades
+        comunidades = comunidadesValidas;
+        
+        std::cout << "Algoritmo Randomizado: Criadas " << comunidades.size() 
+                  << " comunidades com abordagem simplificada." << std::endl;
     }
-    
-    // Para grafos menores, usar uma abordagem ainda reduzida mas um pouco mais elaborada
-    int nodesLimit = 20; // Limite fixo para grafos menores
-    if (nodesLimit > grafo->getNumVertices()) {
-        nodesLimit = grafo->getNumVertices();
+    else {
+        // Abordagem completa para grafos menores
+        inicializarComunidades();
+        expandirComunidades();
+        
+        std::cout << "Algoritmo Randomizado: Criadas " << comunidades.size() << " comunidades." << std::endl;
     }
-    
-    // Inicializar atribuição de vértices
-    atribuicaoVertices.resize(nodesLimit, -1);
-    
-    // Inicializar um número reduzido de comunidades
-    int numComunidades = numComunidadesAlvo > 3 ? 3 : numComunidadesAlvo;
-    
-    for (int i = 0; i < numComunidades; i++) {
-        Comunidade novaComunidade(i);
-        comunidades.push_back(novaComunidade);
-    }
-    
-    // Atribuir alguns vértices aleatoriamente às comunidades
-    for (int i = 0; i < nodesLimit; i++) {
-        int comunidade = std::rand() % numComunidades;
-        comunidades[comunidade].adicionarVertice(i);
-        atribuicaoVertices[i] = comunidade;
-    }
-    
-    std::cout << "Algoritmo Randomizado: Criadas " << numComunidades << " comunidades limitadas." << std::endl;
 }
 
-// Implementação da função que sorteia um nó aleatório
+// Adicionando método auxiliar para adicionar vizinhos diretos
+void AlgoritmoRandomizado::adicionarVizinhosDiretos(int vertice, int comunidade) {
+    // Adicionar até 5 vizinhos diretos à mesma comunidade
+    int vizinhosAdicionados = 0;
+    for (int v = 0; v < grafo->getNumVertices() && vizinhosAdicionados < 5; v++) {
+        if (grafo->existeAresta(vertice, v) && atribuicaoVertices[v] == -1) {
+            // Com probabilidade baseada na probabilidadeConexao
+            if (gerarNumeroAleatorio() < probabilidadeConexao) {
+                comunidades[comunidade].adicionarVertice(v);
+                atribuicaoVertices[v] = comunidade;
+                vizinhosAdicionados++;
+            }
+        }
+    }
+}
+
 int AlgoritmoRandomizado::sortearNoAleatorio() const {
     if (!leitor) return std::rand() % std::min(grafo->getNumVertices(), 1000);
     
@@ -104,20 +131,97 @@ int AlgoritmoRandomizado::sortearNoAleatorio() const {
     return nosPresentesVetor[indiceAleatorio];
 }
 
-// Implementação da função que gera um valor aleatório entre 0 e 1
 float AlgoritmoRandomizado::gerarNumeroAleatorio() const {
     return static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
 }
 
-// Outros métodos mantidos para compatibilidade, mas não usados com grafos grandes
-float AlgoritmoRandomizado::calcularProbabilidade(int vertice, int idComunidade) const {
-    return 0.5f; // valor de demonstração
-}
-
 void AlgoritmoRandomizado::inicializarComunidades() {
-    // stub
+    // Criar o número alvo de comunidades
+    for (int i = 0; i < numComunidadesAlvo; i++) {
+        Comunidade novaComunidade(i);
+        
+        // Selecionar um vértice inicial aleatório para a comunidade
+        int verticeInicial = sortearNoAleatorio();
+        
+        // Adicionar o vértice à comunidade
+        novaComunidade.adicionarVertice(verticeInicial);
+        if (verticeInicial < atribuicaoVertices.size()) {
+            atribuicaoVertices[verticeInicial] = i;
+        }
+        
+        // Adicionar a comunidade ao vetor
+        comunidades.push_back(novaComunidade);
+    }
 }
 
 void AlgoritmoRandomizado::expandirComunidades() {
-    // stub
+    // Número máximo de iterações para evitar loops infinitos
+    const int MAX_ITERACOES = 1000;
+    
+    // Distribuir vértices aleatoriamente para comunidades
+    for (int i = 0; i < MAX_ITERACOES && i < grafo->getNumVertices() * 2; i++) {
+        int vertice = std::rand() % grafo->getNumVertices();
+        
+        // Se o vértice já está atribuído, tentar outro
+        if (vertice >= atribuicaoVertices.size() || atribuicaoVertices[vertice] != -1) {
+            continue;
+        }
+        
+        // Calcular probabilidades para cada comunidade
+        float maxProb = 0.0f;
+        int melhorComunidade = -1;
+        
+        for (int c = 0; c < comunidades.size(); c++) {
+            float prob = calcularProbabilidade(vertice, c);
+            if (prob > maxProb) {
+                maxProb = prob;
+                melhorComunidade = c;
+            }
+        }
+        
+        // Se encontrou uma comunidade adequada
+        if (melhorComunidade != -1) {
+            // Adicionar o vértice à comunidade
+            comunidades[melhorComunidade].adicionarVertice(vertice);
+            atribuicaoVertices[vertice] = melhorComunidade;
+        }
+        // Se não, com probabilidade baixa, criar uma nova comunidade
+        else if (gerarNumeroAleatorio() < 0.05f) {
+            int novaComunidadeId = comunidades.size();
+            Comunidade novaComunidade(novaComunidadeId);
+            novaComunidade.adicionarVertice(vertice);
+            atribuicaoVertices[vertice] = novaComunidadeId;
+            comunidades.push_back(novaComunidade);
+        }
+    }
+}
+
+float AlgoritmoRandomizado::calcularProbabilidade(int vertice, int idComunidade) const {
+    // Verificações básicas
+    if (idComunidade < 0 || idComunidade >= comunidades.size() || 
+        vertice < 0 || vertice >= grafo->getNumVertices()) {
+        return 0.0f;
+    }
+    
+    // Contar conexões com a comunidade
+    int conexoes = 0;
+    int numVerticesAnalisados = 0;
+    
+    // Limitar análise por eficiência
+    for (int i = 0; i < comunidades[idComunidade].getTamanho() && numVerticesAnalisados < 100; i++) {
+        int v = comunidades[idComunidade].getVertice(i);
+        numVerticesAnalisados++;
+        
+        if (grafo->existeAresta(vertice, v)) {
+            conexoes++;
+        }
+    }
+    
+    // Calcular probabilidade baseada em conexões
+    float probabilidade = probabilidadeConexao;
+    if (numVerticesAnalisados > 0) {
+        probabilidade *= (float)conexoes / numVerticesAnalisados;
+    }
+    
+    return probabilidade;
 }
